@@ -1,6 +1,8 @@
 # Ascend: SbA (Stats by Actions) — short overview
 
-**Ascend** turns vanilla Minecraft into a lightweight, persistent RPG: train attributes by doing things in-game, gain Ascend levels, spend points to boost combat, movement, magic and social skills, and watch those choices change how your character performs.
+**Ascend** turns vanilla Minecraft into a lightweight, persistent RPG: train attributes by doing things in-game, gain Ascend levels, spend points to boost combat, movement, magic and social skills, and watch those choices change how your character performs. 
+
+**This Mod is meant to be used alongside Iron's Spells and Spellbooks but does work without it.**
 
 ## What it does (quick)
 
@@ -15,7 +17,7 @@
 * **Agility**: small movement speed bonus; XP for agile actions (sprinting, climbing, jumping).
 * **Fortitude**: increases max health, knockback resistance, chance to resist/cleanse harmful effects.
 * **Intelligence**: increases mana (and integrates with Iron’s Spellbooks if present), lengthens beneficial potion effects, reduces enchantment costs/effects.
-* **Willpower**: reduces sanity drain and increases tempo/stamina gains (API helpers available).
+* **Willpower**: Will be used in later mods -> Does nothing for now.
 * **Charisma**: grants trade discounts by adjusting merchant offers when opening trades.
 * **Scaling stats**: light/medium/heavy weapon scaling and magic scaling multiply damage based on attack speed or magic damage type.
 
