@@ -28,8 +28,4 @@
 
 ## Playstyle & design goal
 
-Ascend is built to be unobtrusive and organic: your playstyle trains the corresponding attributes. Want a heavy-hitter who tanks? Smash armor and spend in Strength/Fortitude. Prefer spellcasting? Farm XP and invest in Intelligence and Magic Scaling. It’s about emergent progression — no grindy menus, just meaningful choices.
-
----
-
-Short, modular, and ready to extend — Ascend gives you an RPG progression layer without changing world generation or requiring a new economy. Want a longer description, a Steam-like blurb, or a README-ready install/FAQ section? I can write that next.
+Ascend is built to be unobtrusive and organic: your playstyle trains the corresponding attributes. Want a heavy-hitter who tanks? Smash armor and spend in Strength/Fortitude. Prefer spellcasting? Farm XP and invest in Intelligence and Magic Scaling. It’s about emergent progression. No grindy menus, just meaningful choices.
