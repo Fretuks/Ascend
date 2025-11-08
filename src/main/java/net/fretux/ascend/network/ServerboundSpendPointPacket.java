@@ -27,8 +27,9 @@ public class ServerboundSpendPointPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ServerPlayer player = ctx.get().getSender();
+        NetworkEvent.Context context = ctx.get();
+        context.enqueueWork(() -> {
+            ServerPlayer player = context.getSender();
             if (player == null) return;
 
             System.out.println("[Ascend] Received spend packet '" + attribute + "' from " + player.getGameProfile().getName());
@@ -36,34 +37,13 @@ public class ServerboundSpendPointPacket {
             player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
                 boolean success = stats.spendPoints(attribute);
                 if (success) {
-                    player.sendSystemMessage(Component.literal("You increased " + attribute + "!"));
+                    StatEffects.applyAll(player);
                     CompoundTag data = stats.serializeNBT();
                     PacketHandler.INSTANCE.send(
                             PacketDistributor.PLAYER.with(() -> player),
                             new ClientboundSyncStatsPacket(data)
                     );
-                } else {
-                    int level = stats.getAttributeLevel(attribute);
-                    int cost = stats.getCostToUpgrade(attribute);
-                    int have = stats.getUnspentPoints();
-                    player.sendSystemMessage(Component.literal(
-                            "Not enough points (" + have + "/" + cost + ") to increase " + attribute + " (lvl " + level + ")."
-                    ));
-                }
-            });
-            player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-                boolean success = stats.spendPoints(attribute);
-                if (success) {
-                    if ("strength".equals(attribute)) {
-                        StatEffects.applyStrength(player, stats.getAttributeLevel("strength"));
-                    }
-
                     player.sendSystemMessage(Component.literal("You increased " + attribute + "!"));
-                    CompoundTag data = stats.serializeNBT();
-                    PacketHandler.INSTANCE.send(
-                            PacketDistributor.PLAYER.with(() -> player),
-                            new ClientboundSyncStatsPacket(data)
-                    );
                 } else {
                     int level = stats.getAttributeLevel(attribute);
                     int cost = stats.getCostToUpgrade(attribute);
@@ -74,6 +54,6 @@ public class ServerboundSpendPointPacket {
                 }
             });
         });
-        ctx.get().setPacketHandled(true);
+        context.setPacketHandled(true);
     }
 }
