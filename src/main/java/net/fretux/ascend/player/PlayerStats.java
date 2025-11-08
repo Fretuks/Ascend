@@ -89,6 +89,13 @@ public class PlayerStats {
         attributes.put(attribute, clamped);
     }
 
+    public int getMaxMana() {
+        int intelligence = getAttributeLevel("intelligence");
+        int base = 50;        
+        int perPoint = 3;    
+        return base + intelligence * perPoint;
+    }
+
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
         tag.putInt("AscendLevel", ascendLevel);
