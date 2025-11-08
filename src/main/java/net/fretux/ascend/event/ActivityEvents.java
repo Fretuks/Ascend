@@ -3,6 +3,9 @@ package net.fretux.ascend.event;
 import net.fretux.ascend.AscendMod;
 import net.fretux.ascend.player.PlayerStatsProvider;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
@@ -221,6 +224,38 @@ public class ActivityEvents {
             float armorFactor = (float) armor / (armor + 100.0f);
             float bonus = baseDamage * armorFactor * bypassFraction;
             event.setAmount(baseDamage + bonus);
+        });
+    }
+
+    @SubscribeEvent
+    public static void onPlayerEvasion(LivingHurtEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (player.level().isClientSide) return;
+        if (event.getAmount() <= 0) return;
+        player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+            int agility = stats.getAttributeLevel("agility");
+            if (agility <= 0) return;
+            double evadeChance = Math.min(agility * 0.0005d, 0.05d);
+            if (player.getRandom().nextDouble() < evadeChance) {
+                float original = event.getAmount();
+                event.setAmount(original * 0.1f);
+                if (player.level() instanceof ServerLevel serverLevel) {
+                    for (int i = 0; i < 8; i++) {
+                        double offsetX = (serverLevel.random.nextDouble() - 0.5) * 0.6;
+                        double offsetY = serverLevel.random.nextDouble() * 1.5;
+                        double offsetZ = (serverLevel.random.nextDouble() - 0.5) * 0.6;
+                        serverLevel.sendParticles(
+                                ParticleTypes.CLOUD,
+                                player.getX() + offsetX,
+                                player.getY() + offsetY,
+                                player.getZ() + offsetZ,
+                                1,
+                                0, 0, 0, 0.0
+                        );
+                    }
+                }
+                player.playSound(SoundEvents.ENDERMAN_TELEPORT, 0.4f, 1.5f);
+            }
         });
     }
 }
