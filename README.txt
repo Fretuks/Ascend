@@ -1,46 +1,35 @@
+# Ascend: SbA (Stats by Actions) — short overview
 
-Source installation information for modders
--------------------------------------------
-This code follows the Minecraft Forge installation methodology. It will apply
-some small patches to the vanilla MCP source code, giving you and it access 
-to some of the data and functions you need to build a successful mod.
+**Ascend** turns vanilla Minecraft into a lightweight, persistent RPG: train attributes by doing things in-game, gain Ascend levels, spend points to boost combat, movement, magic and social skills, and watch those choices change how your character performs.
 
-Note also that the patches are built against "un-renamed" MCP source code (aka
-SRG Names) - this means that you will not be able to read them directly against
-normal code.
+## What it does (quick)
 
-Setup Process:
-==============================
+* Adds an **Ascend level & XP** system (max level **20**, **15 points per level**).
+* Players earn XP from actions: killing mobs, mining certain blocks, taking damage, crafting/smelting, using potions, trading with villagers, using weapons, and periodic checks for risky situations (low health, debuffs, darkness).
+* Spend earned points on 10+ attributes (strength, agility, fortitude, intelligence, willpower, charisma, and weapon/magic scaling stats).
+* Attribute points apply **live** via attribute modifiers and event hooks (damage, health, movement speed, enchant/potion interactions, trade discounts, etc.).
+* Client UI: press **V** (configurable keybind) to open a compact stats screen and spend points. Server-authoritative with packet sync.
 
-Step 1: Open your command-line and browse to the folder where you extracted the zip file.
+## Key mechanics & examples
 
-Step 2: You're left with a choice.
-If you prefer to use Eclipse:
-1. Run the following command: `./gradlew genEclipseRuns`
-2. Open Eclipse, Import > Existing Gradle Project > Select Folder 
-   or run `gradlew eclipse` to generate the project.
+* **Strength**: +attack damage, +knockback, and armor-bypass bonus calculated on hit.
+* **Agility**: small movement speed bonus; XP for agile actions (sprinting, climbing, jumping).
+* **Fortitude**: increases max health, knockback resistance, chance to resist/cleanse harmful effects.
+* **Intelligence**: increases mana (and integrates with Iron’s Spellbooks if present), lengthens beneficial potion effects, reduces enchantment costs/effects.
+* **Willpower**: reduces sanity drain and increases tempo/stamina gains (API helpers available).
+* **Charisma**: grants trade discounts by adjusting merchant offers when opening trades.
+* **Scaling stats**: light/medium/heavy weapon scaling and magic scaling multiply damage based on attack speed or magic damage type.
 
-If you prefer to use IntelliJ:
-1. Open IDEA, and import project.
-2. Select your build.gradle file and have it import.
-3. Run the following command: `./gradlew genIntellijRuns`
-4. Refresh the Gradle Project in IDEA if required.
+## Compatibility & tech notes
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can 
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-(this does not affect your code) and then start the process again.
+* Designed for **Forge 1.20.1** (example build uses Forge 47.4.0) and **Java 17** toolchain.
+* Optional compat with **Iron’s Spellbooks** (adds mana/spell-power hooks). Also prepared to play nicely with Geckolib, Caelus, Curios, Player Animator (as declared in the build).
+* Uses a capability (`PlayerStats`) for persistent storage and network packets to sync server → client. Attributes are capped (per-mod caps and MAX_ATTRIBUTE_POINTS = 100).
 
-Mapping Names:
-=============================
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license, if you do not agree with it you can change your mapping names to other crowdsourced names in your 
-build.gradle. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/MinecraftForge/MCPConfig/blob/master/Mojang.md
+## Playstyle & design goal
 
-Additional Resources: 
-=========================
-Community Documentation: https://docs.minecraftforge.net/en/1.20.1/gettingstarted/
-LexManos' Install Video: https://youtu.be/8VEdtQLuLO0
-Forge Forums: https://forums.minecraftforge.net/
-Forge Discord: https://discord.minecraftforge.net/
+Ascend is built to be unobtrusive and organic: your playstyle trains the corresponding attributes. Want a heavy-hitter who tanks? Smash armor and spend in Strength/Fortitude. Prefer spellcasting? Farm XP and invest in Intelligence and Magic Scaling. It’s about emergent progression — no grindy menus, just meaningful choices.
+
+---
+
+Short, modular, and ready to extend — Ascend gives you an RPG progression layer without changing world generation or requiring a new economy. Want a longer description, a Steam-like blurb, or a README-ready install/FAQ section? I can write that next.
