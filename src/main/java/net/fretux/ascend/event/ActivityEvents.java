@@ -27,10 +27,10 @@ public class ActivityEvents {
     @SubscribeEvent
     public static void onMobKilled(LivingDeathEvent event) {
         if (event.getSource().getEntity() instanceof Player player && !player.level().isClientSide) {
-            player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats ->
-                    stats.addXP("strength", 5)
-            );
-            PlayerStatsProvider.sync(player);
+            player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+                stats.addAscendXP(5);
+                PlayerStatsProvider.sync(player);
+            });
         }
     }
 
@@ -38,12 +38,13 @@ public class ActivityEvents {
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
         Player player = event.getPlayer();
         if (player == null || player.level().isClientSide) return;
+
         Block block = event.getState().getBlock();
         String name = block.getName().getString().toLowerCase();
+
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
             if (name.contains("log") || name.contains("ore") || name.contains("stone")) {
-                stats.addXP("strength", 2);
-                System.out.println("Added 2 strength XP");
+                stats.addAscendXP(2);
                 PlayerStatsProvider.sync(player);
             }
         });
@@ -52,11 +53,11 @@ public class ActivityEvents {
     @SubscribeEvent
     public static void onPlayerDamaged(LivingHurtEvent event) {
         if (event.getEntity() instanceof Player player && !player.level().isClientSide) {
-            player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats ->
-                    stats.addXP("fortitude", Math.min((int) event.getAmount() * 2, 10))
-            );
-            PlayerStatsProvider.sync(player);
-            System.out.println("Added " + event.getAmount() * 2 + " fortitude XP");
+            player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+                int gain = Math.min((int) event.getAmount() * 2, 10);
+                stats.addAscendXP(gain);
+                PlayerStatsProvider.sync(player);
+            });
         }
     }
 
@@ -64,16 +65,16 @@ public class ActivityEvents {
     public static void onPlayerTickFortitude(TickEvent.PlayerTickEvent event) {
         Player player = event.player;
         if (player.level().isClientSide || event.phase != TickEvent.Phase.END) return;
+
         fortitudeTickCounter++;
         if (fortitudeTickCounter % 100 == 0) {
             player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
                 boolean hasNegativeEffect = player.getActiveEffects().stream()
                         .anyMatch(e -> e.getEffect().getCategory() == MobEffectCategory.HARMFUL);
                 if (player.getFoodData().getFoodLevel() <= 6 || hasNegativeEffect) {
-                    stats.addXP("fortitude", 2);
+                    stats.addAscendXP(2);
                     PlayerStatsProvider.sync(player);
                 }
-
             });
         }
     }
@@ -83,13 +84,17 @@ public class ActivityEvents {
         Player player = event.player;
         if (player.level().isClientSide || event.phase != TickEvent.Phase.END) return;
         agilityTickCounter++;
-        if (agilityTickCounter % 20 != 0) return;
+        if (agilityTickCounter % 40 != 0) return;
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-            if (player.isSprinting()) stats.addXP("agility", 2);
-            if (player.isCrouching()) stats.addXP("agility", 1);
-            if (Math.abs(player.getDeltaMovement().y) > 0.25) stats.addXP("agility", 1);
-            if (player.onClimbable()) stats.addXP("agility", 1);
-            PlayerStatsProvider.sync(player);
+            boolean didAgileThing =
+                    player.isSprinting()
+                            || player.isCrouching()
+                            || Math.abs(player.getDeltaMovement().y) > 0.25
+                            || player.onClimbable();
+            if (didAgileThing) {
+                stats.addAscendXP(1);
+                PlayerStatsProvider.sync(player);
+            }
         });
     }
 
@@ -98,7 +103,7 @@ public class ActivityEvents {
         Player player = event.getEntity();
         if (player.level().isClientSide) return;
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-            stats.addXP("intelligence", 3);
+            stats.addAscendXP(3);
             PlayerStatsProvider.sync(player);
         });
     }
@@ -108,7 +113,7 @@ public class ActivityEvents {
         Player player = event.getEntity();
         if (player.level().isClientSide) return;
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-            stats.addXP("intelligence", 2);
+            stats.addAscendXP(2);
             PlayerStatsProvider.sync(player);
         });
     }
@@ -118,23 +123,21 @@ public class ActivityEvents {
         Player player = event.player;
         if (player.level().isClientSide || event.phase != TickEvent.Phase.END) return;
         willpowerTickCounter++;
-        if (willpowerTickCounter % 100 == 0) { // every 5s
-            player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-                // XP for surviving under pressure
-                boolean hasNegativeEffect = player.getActiveEffects().stream()
-                        .anyMatch(e -> e.getEffect().getCategory() == MobEffectCategory.HARMFUL);
-                boolean lowHealth = player.getHealth() <= player.getMaxHealth() * 0.25f;
-
-                // Check darkness
-                BlockPos pos = player.blockPosition();
-                int light = player.level().getBrightness(LightLayer.BLOCK, pos);
-
-                if (hasNegativeEffect || lowHealth || light < 4) {
-                    stats.addXP("willpower", 2);
-                    PlayerStatsProvider.sync(player);
-                }
-            });
-        }
+        if (willpowerTickCounter % 200 != 0) return;
+        player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+            boolean hasNegativeEffect = player.getActiveEffects().stream()
+                    .anyMatch(e -> e.getEffect().getCategory() == MobEffectCategory.HARMFUL);
+            boolean lowHealth = player.getHealth() <= player.getMaxHealth() * 0.25f;
+            BlockPos pos = player.blockPosition();
+            int blockLight = player.level().getBrightness(LightLayer.BLOCK, pos);
+            int skyLight = player.level().getBrightness(LightLayer.SKY, pos);
+            int light = Math.max(blockLight, skyLight);
+            boolean inDarkness = light <= 3;
+            if (lowHealth || (hasNegativeEffect && inDarkness)) {
+                stats.addAscendXP(1);
+                PlayerStatsProvider.sync(player);
+            }
+        });
     }
 
     @SubscribeEvent
@@ -143,7 +146,7 @@ public class ActivityEvents {
         Player player = event.getEntity();
         if (player.level().isClientSide) return;
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-            stats.addXP("charisma", 5);
+            stats.addAscendXP(5);
             PlayerStatsProvider.sync(player);
         });
     }
@@ -153,20 +156,13 @@ public class ActivityEvents {
         if (!(event.getSource().getEntity() instanceof Player player)) return;
         if (player.level().isClientSide) return;
         if (event.getEntity() == player) return;
-
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
             var heldItem = player.getMainHandItem();
             if (heldItem.isEmpty()) return;
-
             double attackSpeed = player.getAttribute(
                     net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED
             ).getBaseValue();
-
-            String category = (attackSpeed >= 2.0) ? "light_scaling"
-                    : (attackSpeed >= 1.2) ? "medium_scaling"
-                    : "heavy_scaling";
-
-            stats.addXP(category, 3);
+            stats.addAscendXP(3);
             PlayerStatsProvider.sync(player);
         });
     }
@@ -177,7 +173,7 @@ public class ActivityEvents {
         if (player.level().isClientSide) return;
         if (event.getItemStack().getItem().getDescriptionId().contains("potion")) {
             player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-                stats.addXP("magic_scaling", 3);
+                stats.addAscendXP(3);
                 PlayerStatsProvider.sync(player);
             });
         }
@@ -189,7 +185,7 @@ public class ActivityEvents {
         if (player.level().isClientSide) return;
         if (event.getEffectInstance().getEffect().getCategory() == net.minecraft.world.effect.MobEffectCategory.BENEFICIAL) {
             player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-                stats.addXP("magic_scaling", 2);
+                stats.addAscendXP(2);
                 PlayerStatsProvider.sync(player);
             });
         }
@@ -202,7 +198,7 @@ public class ActivityEvents {
         String itemName = event.getSmelting().getDisplayName().getString().toLowerCase();
         if (itemName.contains("potion") || itemName.contains("elixir")) {
             player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-                stats.addXP("magic_scaling", 2);
+                stats.addAscendXP(3);
                 PlayerStatsProvider.sync(player);
             });
         }
