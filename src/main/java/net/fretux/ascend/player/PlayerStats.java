@@ -12,6 +12,7 @@ public class PlayerStats {
     private int ascendLevel = 1;
     private int ascendXP = 0;
     private int unspentPoints = POINTS_PER_LEVEL;
+    public static final int MAX_ATTRIBUTE_POINTS = 100;
     public PlayerStats() {
         for (String attr : new String[]{
                 "strength", "agility", "fortitude", "intelligence",
@@ -59,12 +60,18 @@ public class PlayerStats {
     public void addUnspentPoints(int amount) {
         unspentPoints += amount;
     }
-    
+
     public boolean spendPoints(String attribute) {
-        if (unspentPoints <= 0) return false;
         if (!attributes.containsKey(attribute)) return false;
-        attributes.put(attribute, attributes.get(attribute) + 1);
-        unspentPoints--;
+        int level = attributes.get(attribute);
+        if (level >= MAX_ATTRIBUTE_POINTS) {
+            return false;
+        }
+        if (unspentPoints <= 0) {
+            return false;
+        }
+        unspentPoints -= 1;
+        attributes.put(attribute, level + 1);
         return true;
     }
 
@@ -77,7 +84,9 @@ public class PlayerStats {
     }
 
     public void setAttributeLevel(String attribute, int level) {
-        attributes.put(attribute, level);
+        if (!attributes.containsKey(attribute)) return;
+        int clamped = Math.max(0, Math.min(level, MAX_ATTRIBUTE_POINTS));
+        attributes.put(attribute, clamped);
     }
 
     public CompoundTag serializeNBT() {
@@ -104,9 +113,8 @@ public class PlayerStats {
         if (tag.contains("Attributes")) {
             CompoundTag attrTag = tag.getCompound("Attributes");
             for (String key : attributes.keySet()) {
-                if (attrTag.contains(key)) {
-                    attributes.put(key, attrTag.getInt(key));
-                }
+                int loaded = attrTag.getInt(key);
+                attributes.put(key, Math.max(0, Math.min(loaded, MAX_ATTRIBUTE_POINTS)));
             }
         }
     }

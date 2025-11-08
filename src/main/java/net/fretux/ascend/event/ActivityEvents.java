@@ -16,6 +16,8 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraft.world.entity.LivingEntity;
 
 @Mod.EventBusSubscriber(modid = AscendMod.MODID)
 public class ActivityEvents {
@@ -54,7 +56,7 @@ public class ActivityEvents {
     public static void onPlayerDamaged(LivingHurtEvent event) {
         if (event.getEntity() instanceof Player player && !player.level().isClientSide) {
             player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-                int gain = Math.min((int) event.getAmount() * 2, 10);
+                int gain = Math.min((int) event.getAmount() / 2, 10);
                 stats.addAscendXP(gain);
                 PlayerStatsProvider.sync(player);
             });
@@ -202,5 +204,23 @@ public class ActivityEvents {
                 PlayerStatsProvider.sync(player);
             });
         }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerDealsDamage(LivingDamageEvent event) {
+        if (!(event.getSource().getEntity() instanceof Player player)) return;
+        if (player.level().isClientSide) return;
+        LivingEntity target = event.getEntity();
+        player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+            int strength = stats.getAttributeLevel("strength");
+            if (strength <= 0) return;
+            float bypassFraction = Math.min(strength * 0.001f, 0.30f);
+            int armor = target.getArmorValue();
+            if (armor <= 0 || bypassFraction <= 0f) return;
+            float baseDamage = event.getAmount();
+            float armorFactor = (float) armor / (armor + 100.0f);
+            float bonus = baseDamage * armorFactor * bypassFraction;
+            event.setAmount(baseDamage + bonus);
+        });
     }
 }

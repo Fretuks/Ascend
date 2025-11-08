@@ -1,5 +1,6 @@
 package net.fretux.ascend.network;
 
+import net.fretux.ascend.player.StatEffects;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -50,8 +51,29 @@ public class ServerboundSpendPointPacket {
                     ));
                 }
             });
+            player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+                boolean success = stats.spendPoints(attribute);
+                if (success) {
+                    if ("strength".equals(attribute)) {
+                        StatEffects.applyStrength(player, stats.getAttributeLevel("strength"));
+                    }
+
+                    player.sendSystemMessage(Component.literal("You increased " + attribute + "!"));
+                    CompoundTag data = stats.serializeNBT();
+                    PacketHandler.INSTANCE.send(
+                            PacketDistributor.PLAYER.with(() -> player),
+                            new ClientboundSyncStatsPacket(data)
+                    );
+                } else {
+                    int level = stats.getAttributeLevel(attribute);
+                    int cost = stats.getCostToUpgrade(attribute);
+                    int have = stats.getUnspentPoints();
+                    player.sendSystemMessage(Component.literal(
+                            "Not enough points (" + have + "/" + cost + ") to increase " + attribute + " (lvl " + level + ")."
+                    ));
+                }
+            });
         });
         ctx.get().setPacketHandled(true);
     }
-
 }

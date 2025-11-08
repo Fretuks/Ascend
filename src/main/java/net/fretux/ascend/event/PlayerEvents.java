@@ -2,6 +2,7 @@ package net.fretux.ascend.event;
 
 import net.fretux.ascend.AscendMod;
 import net.fretux.ascend.player.PlayerStatsProvider;
+import net.fretux.ascend.player.StatEffects;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -27,15 +28,19 @@ public class PlayerEvents {
     public static void onPlayerClone(PlayerEvent.Clone event) {
         event.getOriginal().reviveCaps();
         event.getOriginal().getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(oldStats ->
-                event.getEntity().getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(newStats ->
-                        newStats.deserializeNBT(oldStats.serializeNBT())));
+                event.getEntity().getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(newStats -> {
+                    newStats.deserializeNBT(oldStats.serializeNBT());
+                    StatEffects.applyAll(event.getEntity());
+                })
+        );
     }
 
-    // Optional but very helpful: sync on login so client sees initial 15 points
     @SubscribeEvent
     public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (!event.getEntity().level().isClientSide) {
             PlayerStatsProvider.sync(event.getEntity());
+            StatEffects.applyAll(event.getEntity());
         }
     }
+
 }
