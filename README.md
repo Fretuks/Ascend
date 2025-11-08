@@ -6,8 +6,7 @@
 
 * Adds an **Ascend level & XP** system (max level **20**, **15 points per level**).
 * Players earn XP from actions: killing mobs, mining certain blocks, taking damage, crafting/smelting, using potions, trading with villagers, using weapons, and periodic checks for risky situations (low health, debuffs, darkness).
-* Spend earned points on 10+ attributes (strength, agility, fortitude, intelligence, willpower, charisma, and weapon/magic scaling stats).
-* Attribute points apply **live** via attribute modifiers and event hooks (damage, health, movement speed, enchant/potion interactions, trade discounts, etc.).
+* Spend earned points on 10 attributes (strength, agility, fortitude, intelligence, willpower, charisma, and weapon/magic scaling stats).
 * Client UI: press **V** (configurable keybind) to open a compact stats screen and spend points. Server-authoritative with packet sync.
 
 ## Key mechanics & examples
@@ -19,12 +18,6 @@
 * **Willpower**: reduces sanity drain and increases tempo/stamina gains (API helpers available).
 * **Charisma**: grants trade discounts by adjusting merchant offers when opening trades.
 * **Scaling stats**: light/medium/heavy weapon scaling and magic scaling multiply damage based on attack speed or magic damage type.
-
-## Compatibility & tech notes
-
-* Designed for **Forge 1.20.1** (example build uses Forge 47.4.0) and **Java 17** toolchain.
-* Optional compat with **Iron’s Spellbooks** (adds mana/spell-power hooks). Also prepared to play nicely with Geckolib, Caelus, Curios, Player Animator (as declared in the build).
-* Uses a capability (`PlayerStats`) for persistent storage and network packets to sync server → client. Attributes are capped (per-mod caps and MAX_ATTRIBUTE_POINTS = 100).
 
 ## Playstyle & design goal
 
