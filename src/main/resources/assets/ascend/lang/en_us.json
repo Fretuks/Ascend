@@ -1,0 +1,33 @@
+{
+  "key.ascend.open_stats": "Open Ascend Stats",
+  "key.categories.inventory": "Inventory",
+  "ascend.stats.title": "Ascend Stats",
+  "ascend.stats.level": "Level: %s/%s",
+  "ascend.stats.xp": "Ascend XP: %s / %s",
+  "ascend.stats.xp_max": "Ascend XP: MAX",
+  "ascend.stats.unspent": "Unspent Points: %s",
+
+  "ascend.attribute.strength": "Strength",
+  "ascend.attribute.strength.desc": "Increases melee damage, knockback and armor penetration.",
+  "ascend.attribute.agility": "Agility",
+  "ascend.attribute.agility.desc": "Increases movement speed and mobility.",
+  "ascend.attribute.fortitude": "Fortitude",
+  "ascend.attribute.fortitude.desc": "Increases max health and knockback resistance.",
+  "ascend.attribute.intelligence": "Intelligence",
+  "ascend.attribute.intelligence.desc": "Boosts mana, spell power, mana regen & cooldown reduction (with Iron's Spellbooks).",
+  "ascend.attribute.willpower": "Willpower",
+  "ascend.attribute.willpower.desc": "Reduces sanity drain and improves stamina/tempo.",
+  "ascend.attribute.charisma": "Charisma",
+  "ascend.attribute.charisma.desc": "Increases max mana and improves trade deals.",
+  "ascend.attribute.light_scaling": "Light Scaling",
+  "ascend.attribute.light_scaling.desc": "Improves light weapon performance.",
+  "ascend.attribute.medium_scaling": "Medium Scaling",
+  "ascend.attribute.medium_scaling.desc": "Improves medium weapon performance.",
+  "ascend.attribute.heavy_scaling": "Heavy Scaling",
+  "ascend.attribute.heavy_scaling.desc": "Improves heavy weapon performance.",
+  "ascend.attribute.magic_scaling": "Magic Scaling",
+  "ascend.attribute.magic_scaling.desc": "Increases spell power and mana efficiency for scaling spells.",
+
+  "ascend.attribute.display": "%s: %s"
+}
+

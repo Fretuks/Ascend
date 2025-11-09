@@ -62,7 +62,7 @@ public final class StatEffects {
         if (kb != null) {
             kb.removeModifier(STRENGTH_KNOCKBACK_UUID);
             if (strengthLevel > 0) {
-                double kbBonus = strengthLevel * 0.03d * getScaling();
+                double kbBonus = strengthLevel * 0.015d * getScaling();
                 kb.addTransientModifier(new AttributeModifier(
                         STRENGTH_KNOCKBACK_UUID,
                         "Ascend Strength knockback bonus",
@@ -78,7 +78,7 @@ public final class StatEffects {
         if (move != null) {
             move.removeModifier(AGILITY_SPEED_UUID);
             if (agilityLevel > 0) {
-                double bonus = agilityLevel * 0.002d * getScaling();
+                double bonus = agilityLevel * 0.0005d * getScaling();
                 move.addTransientModifier(new AttributeModifier(
                         AGILITY_SPEED_UUID,
                         "Ascend Agility speed bonus",

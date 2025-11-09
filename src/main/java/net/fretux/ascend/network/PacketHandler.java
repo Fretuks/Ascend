@@ -2,7 +2,6 @@ package net.fretux.ascend.network;
 
 import net.fretux.ascend.AscendMod;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -13,10 +12,6 @@ public class PacketHandler {
     private static int id = 0;
 
     public static void register() {
-        System.out.println("[Ascend] Registering network packets...");
-        System.out.println("[Ascend] Registering packets on side: " +
-                (FMLEnvironment.dist.isClient() ? "CLIENT" : "SERVER"));
-
         INSTANCE = NetworkRegistry.newSimpleChannel(
                 new ResourceLocation(AscendMod.MODID, "main"),
                 () -> PROTOCOL_VERSION,

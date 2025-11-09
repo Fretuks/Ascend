@@ -22,6 +22,12 @@ public class StatsScreen extends Screen {
     private int topPos;
 
     private final Minecraft mc = Minecraft.getInstance();
+    private final Map<String, Button> plusButtons = new HashMap<>();
+    private String hoveredAttributeKey = null;
+
+    public StatsScreen() {
+        super(Component.literal("Ascend Stats"));
+    }
 
     private static final String[] ATTRIBUTES = new String[]{
             "strength", "agility", "fortitude", "intelligence",
@@ -29,49 +35,13 @@ public class StatsScreen extends Screen {
             "light_scaling", "medium_scaling", "heavy_scaling", "magic_scaling"
     };
 
-    private final Map<String, Button> plusButtons = new HashMap<>();
-
-    // --- Tooltips for attributes ---
+    // Use translation keys for attribute labels and tooltips
     private static final Map<String, Component> ATTRIBUTE_TOOLTIPS = new HashMap<>();
 
     static {
-        ATTRIBUTE_TOOLTIPS.put("strength", Component.literal(
-                "Strength: Increases melee damage, knockback and armor penetration."
-        ));
-        ATTRIBUTE_TOOLTIPS.put("agility", Component.literal(
-                "Agility: Increases movement speed and mobility."
-        ));
-        ATTRIBUTE_TOOLTIPS.put("fortitude", Component.literal(
-                "Fortitude: Increases max health and knockback resistance."
-        ));
-        ATTRIBUTE_TOOLTIPS.put("intelligence", Component.literal(
-                "Intelligence: Boosts mana, spell power, mana regen & cooldown reduction (with Iron's Spellbooks)."
-        ));
-        ATTRIBUTE_TOOLTIPS.put("willpower", Component.literal(
-                "Willpower: Reduces sanity drain and improves stamina/tempo in harsh conditions."
-        ));
-        ATTRIBUTE_TOOLTIPS.put("charisma", Component.literal(
-                "Charisma: Increases max mana and improves trade deals."
-        ));
-        ATTRIBUTE_TOOLTIPS.put("light_scaling", Component.literal(
-                "Light Scaling: Increases damage with light weapons that scale with this stat."
-        ));
-        ATTRIBUTE_TOOLTIPS.put("medium_scaling", Component.literal(
-                "Medium Scaling: Increases damage with medium weapons that scale with this stat."
-        ));
-        ATTRIBUTE_TOOLTIPS.put("heavy_scaling", Component.literal(
-                "Heavy Scaling: Increases damage with heavy weapons that scale with this stat."
-        ));
-        ATTRIBUTE_TOOLTIPS.put("magic_scaling", Component.literal(
-                "Magic Scaling: Increases spell power, mana regen & cooldown reduction for scaling spells."
-        ));
-    }
-
-    // which attribute label the mouse is currently over (for tooltip)
-    private String hoveredAttributeKey = null;
-
-    public StatsScreen() {
-        super(Component.literal("Ascend Stats"));
+        for (String key : ATTRIBUTES) {
+            ATTRIBUTE_TOOLTIPS.put(key, Component.translatable("ascend.attribute." + key + ".desc"));
+        }
     }
 
     @Override
@@ -108,7 +78,8 @@ public class StatsScreen extends Screen {
         RenderSystem.enableBlend();
         gui.fill(leftPos - 4, topPos - 4, leftPos + WIDTH + 4, topPos + HEIGHT + 4, 0xAA000000);
         RenderSystem.disableBlend();
-        gui.drawCenteredString(this.font, this.title, this.width / 2, topPos + 8, 0xFFFFFF);
+        gui.drawCenteredString(this.font, Component.translatable("ascend.stats.title"), this.width / 2, topPos + 8, 0xFFFFFF);
+
         hoveredAttributeKey = null;
         if (mc.player != null) {
             mc.player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
@@ -116,26 +87,25 @@ public class StatsScreen extends Screen {
                 int xp = stats.getAscendXP();
                 int xpNext = stats.getXPToNextAscendLevel();
                 int unspent = stats.getUnspentPoints();
-                String levelStr = "Level: " + level + "/" + 20;
-                gui.drawString(font, levelStr, leftPos + 10, topPos + 24, 0xFFFF55);
+
+                gui.drawString(font, Component.translatable("ascend.stats.level", level, 20), leftPos + 10, topPos + 24, 0xFFFF55);
                 if (level < 20) {
-                    String xpStr = "Ascend XP: " + xp + " / " + xpNext;
-                    gui.drawString(font, xpStr, leftPos + 10, topPos + 36, 0xAAAAAA);
+                    gui.drawString(font, Component.translatable("ascend.stats.xp", xp, xpNext), leftPos + 10, topPos + 36, 0xAAAAAA);
                 } else {
-                    gui.drawString(font, "Ascend XP: MAX", leftPos + 10, topPos + 36, 0xAAAAAA);
+                    gui.drawString(font, Component.translatable("ascend.stats.xp_max"), leftPos + 10, topPos + 36, 0xAAAAAA);
                 }
-                String ptsStr = "Unspent Points: " + unspent;
-                int ptsWidth = font.width(ptsStr);
-                gui.drawString(font, ptsStr,
-                        leftPos + WIDTH - 10 - ptsWidth, topPos + 24, 0x55FF55);
+                gui.drawString(font, Component.translatable("ascend.stats.unspent", unspent),
+                        leftPos + WIDTH - 10 - font.width("Unspent Points: " + unspent), topPos + 24, 0x55FF55);
+
                 int y = topPos + 55;
                 for (String key : ATTRIBUTES) {
                     int attrLevel = stats.getAttributeLevel(key);
                     int cost = stats.getCostToUpgrade(key);
-                    String niceName = formatAttributeName(key);
-                    String label = niceName + ": " + attrLevel;
+                    Component name = Component.translatable("ascend.attribute." + key);
+                    Component label = Component.translatable("ascend.attribute.display", name, attrLevel);
                     int labelX = leftPos + 10;
                     gui.drawString(font, label, labelX, y, 0xFFFFFF);
+
                     Button plus = plusButtons.get(key);
                     if (plus != null) {
                         plus.setX(leftPos + WIDTH - 40);
@@ -143,28 +113,25 @@ public class StatsScreen extends Screen {
                         plus.active = (unspent >= cost);
                         plus.setMessage(Component.literal("+" + cost));
                     }
+
                     int labelWidth = font.width(label);
-                    int labelHeight = font.lineHeight;
                     if (mouseX >= labelX && mouseX <= labelX + labelWidth
-                            && mouseY >= y && mouseY <= y + labelHeight) {
+                            && mouseY >= y && mouseY <= y + font.lineHeight) {
                         hoveredAttributeKey = key;
                     }
                     y += 16;
                 }
             });
         }
+
         super.render(gui, mouseX, mouseY, partialTicks);
+
         if (hoveredAttributeKey != null) {
             Component tooltip = ATTRIBUTE_TOOLTIPS.get(hoveredAttributeKey);
             if (tooltip != null) {
                 gui.renderTooltip(this.font, tooltip, mouseX, mouseY);
             }
         }
-    }
-
-    private String formatAttributeName(String key) {
-        String withSpaces = key.replace('_', ' ');
-        return withSpaces.substring(0, 1).toUpperCase() + withSpaces.substring(1);
     }
 
     @Override

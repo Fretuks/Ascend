@@ -3,7 +3,6 @@ package net.fretux.ascend.network;
 import net.fretux.ascend.player.PlayerStatsProvider;
 import net.fretux.ascend.player.StatEffects;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
@@ -40,14 +39,6 @@ public class ServerboundSpendPointPacket {
                             PacketDistributor.PLAYER.with(() -> player),
                             new ClientboundSyncStatsPacket(data)
                     );
-                    player.sendSystemMessage(Component.literal("You increased " + attribute + "!"));
-                } else {
-                    int level = stats.getAttributeLevel(attribute);
-                    int cost = stats.getCostToUpgrade(attribute);
-                    int have = stats.getUnspentPoints();
-                    player.sendSystemMessage(Component.literal(
-                            "Not enough points (" + have + "/" + cost + ") to increase " + attribute + " (lvl " + level + ")."
-                    ));
                 }
             });
         });

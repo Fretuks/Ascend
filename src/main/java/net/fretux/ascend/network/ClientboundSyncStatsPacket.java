@@ -1,6 +1,5 @@
 package net.fretux.ascend.network;
 
-import net.fretux.ascend.player.PlayerStats;
 import net.fretux.ascend.player.PlayerStatsProvider;
 import net.fretux.ascend.player.StatEffects;
 import net.minecraft.client.Minecraft;
@@ -35,13 +34,6 @@ public class ClientboundSyncStatsPacket {
                     stats.deserializeNBT(data);
                     StatEffects.applyAll(mc.player);
                     stats.deserializeNBT(data);
-                    System.out.println("[CLIENT] Before sync: points="
-                            + player.getCapability(PlayerStatsProvider.PLAYER_STATS)
-                            .map(PlayerStats::getUnspentPoints).orElse(-1));
-                    stats.deserializeNBT(data);
-                    System.out.println("[CLIENT] After sync: points="
-                            + player.getCapability(PlayerStatsProvider.PLAYER_STATS)
-                            .map(PlayerStats::getUnspentPoints).orElse(-1));
                 });
             }
             ctx.get().setPacketHandled(true);
