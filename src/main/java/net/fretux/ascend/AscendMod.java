@@ -1,8 +1,10 @@
 package net.fretux.ascend;
 
+import net.fretux.ascend.command.AscendCommand;
 import net.fretux.ascend.config.AscendConfig;
 import net.fretux.ascend.network.PacketHandler;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -27,5 +29,10 @@ public class AscendMod {
             PacketHandler.register();
             System.out.println("[Ascend] Registering packets... Side=" + FMLEnvironment.dist);
         });
+    }
+    
+    @SubscribeEvent
+    public static void onRegisterCommands(net.minecraftforge.event.RegisterCommandsEvent event) {
+        AscendCommand.register(event.getDispatcher());
     }
 }

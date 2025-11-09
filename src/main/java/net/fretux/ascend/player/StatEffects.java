@@ -26,7 +26,9 @@ public final class StatEffects {
 
     private StatEffects() {}
 
-    static double scale = AscendConfig.COMMON.attributeScalingMultiplier.get();
+    private static double getScaling() {
+        return AscendConfig.COMMON.attributeScalingMultiplier.get();
+    }
     
     public static void applyAll(Player player) {
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
@@ -41,12 +43,11 @@ public final class StatEffects {
     }
     
     public static void applyStrength(Player player, int strengthLevel) {
-        // Damage
         AttributeInstance atk = player.getAttribute(Attributes.ATTACK_DAMAGE);
         if (atk != null) {
             atk.removeModifier(STRENGTH_DAMAGE_UUID);
             if (strengthLevel > 0) {
-                double dmgBonus = strengthLevel * 0.1d * scale;
+                double dmgBonus = strengthLevel * 0.1d * getScaling();
                 atk.addTransientModifier(new AttributeModifier(
                         STRENGTH_DAMAGE_UUID,
                         "Ascend Strength damage bonus",
@@ -61,7 +62,7 @@ public final class StatEffects {
         if (kb != null) {
             kb.removeModifier(STRENGTH_KNOCKBACK_UUID);
             if (strengthLevel > 0) {
-                double kbBonus = strengthLevel * 0.03d * scale;
+                double kbBonus = strengthLevel * 0.03d * getScaling();
                 kb.addTransientModifier(new AttributeModifier(
                         STRENGTH_KNOCKBACK_UUID,
                         "Ascend Strength knockback bonus",
@@ -77,7 +78,7 @@ public final class StatEffects {
         if (move != null) {
             move.removeModifier(AGILITY_SPEED_UUID);
             if (agilityLevel > 0) {
-                double bonus = agilityLevel * 0.002d * scale;
+                double bonus = agilityLevel * 0.002d * getScaling();
                 move.addTransientModifier(new AttributeModifier(
                         AGILITY_SPEED_UUID,
                         "Ascend Agility speed bonus",
@@ -93,7 +94,7 @@ public final class StatEffects {
         if (hp != null) {
             hp.removeModifier(FORTITUDE_HEALTH_UUID);
             if (fortitudeLevel > 0) {
-                double healthBonus = fortitudeLevel * 0.25d * scale;
+                double healthBonus = fortitudeLevel * 0.25d * getScaling();
                 hp.addTransientModifier(new AttributeModifier(
                         FORTITUDE_HEALTH_UUID,
                         "Ascend Fortitude health bonus",
@@ -106,7 +107,7 @@ public final class StatEffects {
         if (kbRes != null) {
             kbRes.removeModifier(FORTITUDE_KB_RESIST_UUID);
             if (fortitudeLevel > 0) {
-                double res = Math.min(0.006d * fortitudeLevel * scale, 0.60d);
+                double res = Math.min(0.006d * fortitudeLevel * getScaling(), 0.60d);
                 kbRes.addTransientModifier(new AttributeModifier(
                         FORTITUDE_KB_RESIST_UUID,
                         "Ascend Fortitude knockback resist",
@@ -119,13 +120,13 @@ public final class StatEffects {
     
     public static float getWillpowerSanityMultiplier(int willpowerLevel) {
         if (willpowerLevel <= 0) return 1.0f;
-        double reduction = Math.min(willpowerLevel * 0.005d * scale, 0.5d);
+        double reduction = Math.min(willpowerLevel * 0.005d * getScaling(), 0.5d);
         return (float) (1.0d - reduction);
     }
     
     public static float getWillpowerTempoMultiplier(int willpowerLevel) {
         if (willpowerLevel <= 0) return 1.0f;
-        double bonus = Math.min(willpowerLevel * 0.004d * scale, 0.4d); // up to +40%
+        double bonus = Math.min(willpowerLevel * 0.004d * getScaling(), 0.4d);
         return (float) (1.0d + bonus);
     }
 
@@ -149,7 +150,7 @@ public final class StatEffects {
         if (charismaLevel <= 0) return 0.0d;
         double perPoint = 0.01d;  
         double max = 0.30d;        
-        return Math.min(charismaLevel * perPoint * scale, max);
+        return Math.min(charismaLevel * perPoint * getScaling(), max);
     }
 
     public static double getWeaponScalingMultiplier(int scalingLevel) {

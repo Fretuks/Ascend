@@ -12,7 +12,9 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = AscendMod.MODID)
 public class WeaponMagicScalingEvents {
-    static double scale = AscendConfig.COMMON.attributeScalingMultiplier.get();
+    private static double getScaling() {
+        return AscendConfig.COMMON.attributeScalingMultiplier.get();
+    }
 
     @SubscribeEvent
     public static void onLivingHurt(LivingHurtEvent event) {
@@ -27,7 +29,7 @@ public class WeaponMagicScalingEvents {
                 if (magicScaling > 0) {
                     double perPoint = 0.005d;
                     double maxBonus = 0.40d;
-                    double bonusMult = 1.0d + Math.min(magicScaling * perPoint * scale, maxBonus);
+                    double bonusMult = 1.0d + Math.min(magicScaling * perPoint * getScaling(), maxBonus);
                     modified = (float) (modified * bonusMult);
                 }
             } else {
@@ -46,7 +48,7 @@ public class WeaponMagicScalingEvents {
                                     key.equals("medium_scaling") ? 0.004d :
                                             0.005d;
                     double maxBonus = 0.40d;
-                    double bonusMult = 1.0d + Math.min(level * perPoint * scale, maxBonus);
+                    double bonusMult = 1.0d + Math.min(level * perPoint * getScaling(), maxBonus);
                     modified = (float) (modified * bonusMult);
                 }
             }
