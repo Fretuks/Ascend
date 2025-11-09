@@ -30,22 +30,39 @@ public class IronsSpellbooksCompat {
             UUID.fromString("88888888-8888-4888-8888-888888888888");
     private static final UUID MAG_COOLDOWN_REDUCTION_UUID =
             UUID.fromString("99999999-9999-4999-8999-999999999999");
+    private static final UUID WILL_MANA_COST_UUID =
+            UUID.fromString("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
+    private static final UUID CHA_SUPPORT_POWER_UUID =
+            UUID.fromString("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb");
+    private static final UUID CHA_SUMMON_HEALTH_UUID =
+            UUID.fromString("cccccccc-cccc-4ccc-8ccc-cccccccccccc");
+    private static final UUID CHA_SUMMON_DAMAGE_UUID =
+            UUID.fromString("dddddddd-dddd-4ddd-8ddd-dddddddddddd");
 
-    private IronsSpellbooksCompat() {}
+
+    private IronsSpellbooksCompat() {
+    }
 
     public static boolean isLoaded() {
         return ModList.get().isLoaded("irons_spellbooks");
     }
-    
+
     public static void applyAll(Player player) {
         if (!isLoaded()) return;
+
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-            applyIntelligence(player, stats.getAttributeLevel("intelligence"));
-            applyCharisma(player, stats.getAttributeLevel("charisma"));
-            applyMagicScaling(player, stats.getAttributeLevel("magic_scaling"));
+            int intelligence = stats.getAttributeLevel("intelligence");
+            int charisma = stats.getAttributeLevel("charisma");
+            int magicScaling = stats.getAttributeLevel("magic_scaling");
+            int willpower = stats.getAttributeLevel("willpower");
+
+            applyIntelligence(player, intelligence);
+            applyCharisma(player, charisma); // now also handles support/summons internally
+            applyMagicScaling(player, magicScaling);
+            applyWillpowerCastEfficiency(player, willpower);
         });
     }
-    
+
     public static void applyIntelligence(Player player, int intelligence) {
         if (intelligence <= 0) {
             clearIntelligence(player);
@@ -96,10 +113,43 @@ public class IronsSpellbooksCompat {
         removeModifier(player, (Attribute) AttributeRegistry.MANA_REGEN.get(), INT_MANA_REGEN_UUID);
         removeModifier(player, (Attribute) AttributeRegistry.COOLDOWN_REDUCTION.get(), INT_COOLDOWN_REDUCTION_UUID);
     }
-    
+
+    public static void applyWillpowerCastEfficiency(Player player, int willpower) {
+        clearWillpower(player);
+        if (willpower <= 0) {
+            return;
+        }
+        double perPoint = 0.0025d;
+        double max = 0.25d;
+        double reduction = Math.min(willpower * perPoint, max);
+        Attribute attr = (Attribute) AttributeRegistry.CAST_TIME_REDUCTION.get();
+        if (attr == null) {
+            return;
+        }
+        AttributeInstance inst = player.getAttribute(attr);
+        if (inst == null) {
+            return;
+        }
+        inst.removeModifier(WILL_MANA_COST_UUID);
+        if (reduction > 0.0d) {
+            inst.addTransientModifier(new AttributeModifier(
+                    WILL_MANA_COST_UUID,
+                    "Ascend WILL casting time reduction",
+                    -reduction,
+                    AttributeModifier.Operation.MULTIPLY_BASE
+            ));
+        }
+    }
+
+    private static void clearWillpower(Player player) {
+        Attribute attr = (Attribute) AttributeRegistry.CAST_TIME_REDUCTION.get();
+        if (attr == null) return;
+        removeModifier(player, attr, WILL_MANA_COST_UUID);
+    }
+
     public static void applyCharisma(Player player, int charisma) {
+        clearCharisma(player);
         if (charisma <= 0) {
-            clearCharisma(player);
             return;
         }
         double manaPerPoint = 0.5d;
@@ -111,21 +161,68 @@ public class IronsSpellbooksCompat {
                 "Ascend CHA max mana",
                 bonusMana
         );
-        // Trade / reputation hooks can use CHA_SPELL_TRADE_UUID later.
+        double supportPerPoint = 0.003d;
+        double supportMax = 0.30d;
+        double supportBonus = Math.min(charisma * supportPerPoint, supportMax);
+        Attribute supportAttr = null;
+        if (supportAttr != null && supportBonus > 0.0d) {
+            applyMultiplyBaseModifier(
+                    player,
+                    supportAttr,
+                    CHA_SUPPORT_POWER_UUID,
+                    "Ascend CHA support spell power",
+                    supportBonus
+            );
+        }
+        double minionHpPerPoint = 0.004d;
+        double minionDmgPerPoint = 0.003d;
+        double minionHpBonus = Math.min(charisma * minionHpPerPoint, 0.40d);
+        double minionDmgBonus = Math.min(charisma * minionDmgPerPoint, 0.30d);
+        Attribute summonHpAttr = null;
+        Attribute summonDmgAttr = null;
+        if (summonHpAttr != null && minionHpBonus > 0.0d) {
+            applyMultiplyBaseModifier(
+                    player,
+                    summonHpAttr,
+                    CHA_SUMMON_HEALTH_UUID,
+                    "Ascend CHA summon max health",
+                    minionHpBonus
+            );
+        }
+        if (summonDmgAttr != null && minionDmgBonus > 0.0d) {
+            applyMultiplyBaseModifier(
+                    player,
+                    summonDmgAttr,
+                    CHA_SUMMON_DAMAGE_UUID,
+                    "Ascend CHA summon damage",
+                    minionDmgBonus
+            );
+        }
     }
 
     private static void clearCharisma(Player player) {
         removeModifier(player, (Attribute) AttributeRegistry.MAX_MANA.get(), CHA_MAX_MANA_UUID);
-        // Any future CHA ISS modifiers get cleared here.
+        Attribute supportAttr = null;
+        Attribute summonHpAttr = null;
+        Attribute summonDmgAttr = null;
+        if (supportAttr != null) {
+            removeModifier(player, supportAttr, CHA_SUPPORT_POWER_UUID);
+        }
+        if (summonHpAttr != null) {
+            removeModifier(player, summonHpAttr, CHA_SUMMON_HEALTH_UUID);
+        }
+        if (summonDmgAttr != null) {
+            removeModifier(player, summonDmgAttr, CHA_SUMMON_DAMAGE_UUID);
+        }
     }
-    
+
     public static void applyMagicScaling(Player player, int magicScaling) {
         if (magicScaling <= 0) {
             clearMagicScaling(player);
             return;
         }
-        double spPerPoint = 0.006d;    
-        double spMax = 0.60d;            
+        double spPerPoint = 0.006d;
+        double spMax = 0.60d;
         double spBonus = Math.min(magicScaling * spPerPoint, spMax);
         applyMultiplyBaseModifier(
                 player,
@@ -134,8 +231,8 @@ public class IronsSpellbooksCompat {
                 "Ascend Magic Scaling spell power",
                 spBonus
         );
-        double regenPerPoint = 0.001d;  
-        double regenMax = 0.15d;        
+        double regenPerPoint = 0.001d;
+        double regenMax = 0.15d;
         double regenBonus = Math.min(magicScaling * regenPerPoint, regenMax);
         applyMultiplyBaseModifier(
                 player,
@@ -144,9 +241,9 @@ public class IronsSpellbooksCompat {
                 "Ascend Magic Scaling mana regen",
                 regenBonus
         );
-        
-        double cdrPerPoint = 0.001d;     
-        double cdrMax = 0.10d;         
+
+        double cdrPerPoint = 0.001d;
+        double cdrMax = 0.10d;
         double cdrBonus = Math.min(magicScaling * cdrPerPoint, cdrMax);
         applyMultiplyBaseModifier(
                 player,
