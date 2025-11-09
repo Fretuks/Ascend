@@ -1,6 +1,7 @@
 package net.fretux.ascend.event;
 
 import net.fretux.ascend.AscendMod;
+import net.fretux.ascend.config.AscendConfig;
 import net.fretux.ascend.player.PlayerStatsProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -33,7 +34,7 @@ public class ActivityEvents {
     public static void onMobKilled(LivingDeathEvent event) {
         if (event.getSource().getEntity() instanceof Player player && !player.level().isClientSide) {
             player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-                stats.addAscendXP(5);
+                stats.addAscendXP((int) (AscendConfig.COMMON.xpPerMobKill.get() * AscendConfig.COMMON.xpMultiplier.get()));
                 PlayerStatsProvider.sync(player);
             });
         }
@@ -43,13 +44,11 @@ public class ActivityEvents {
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
         Player player = event.getPlayer();
         if (player == null || player.level().isClientSide) return;
-
         Block block = event.getState().getBlock();
         String name = block.getName().getString().toLowerCase();
-
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
             if (name.contains("log") || name.contains("ore") || name.contains("stone")) {
-                stats.addAscendXP(2);
+                stats.addAscendXP((int) (AscendConfig.COMMON.xpPerBlockBreak.get() * AscendConfig.COMMON.xpMultiplier.get()));
                 PlayerStatsProvider.sync(player);
             }
         });
@@ -77,7 +76,7 @@ public class ActivityEvents {
                 boolean hasNegativeEffect = player.getActiveEffects().stream()
                         .anyMatch(e -> e.getEffect().getCategory() == MobEffectCategory.HARMFUL);
                 if (player.getFoodData().getFoodLevel() <= 6 || hasNegativeEffect) {
-                    stats.addAscendXP(2);
+                    stats.addAscendXP((int) (AscendConfig.COMMON.xpPerDamageTaken.get() * AscendConfig.COMMON.xpMultiplier.get()));
                     PlayerStatsProvider.sync(player);
                 }
             });
@@ -97,7 +96,7 @@ public class ActivityEvents {
                             || Math.abs(player.getDeltaMovement().y) > 0.25
                             || player.onClimbable();
             if (didAgileThing) {
-                stats.addAscendXP(1);
+                stats.addAscendXP((int) (AscendConfig.COMMON.xpPerMovement.get() * AscendConfig.COMMON.xpMultiplier.get()));
                 PlayerStatsProvider.sync(player);
             }
         });
@@ -108,7 +107,7 @@ public class ActivityEvents {
         Player player = event.getEntity();
         if (player.level().isClientSide) return;
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-            stats.addAscendXP(3);
+            stats.addAscendXP((int) (AscendConfig.COMMON.xpPerCraft.get() * AscendConfig.COMMON.xpMultiplier.get()));
             PlayerStatsProvider.sync(player);
         });
     }
@@ -118,7 +117,7 @@ public class ActivityEvents {
         Player player = event.getEntity();
         if (player.level().isClientSide) return;
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-            stats.addAscendXP(2);
+            stats.addAscendXP((int) (AscendConfig.COMMON.xpPerSmelt.get() * AscendConfig.COMMON.xpMultiplier.get()));
             PlayerStatsProvider.sync(player);
         });
     }
@@ -151,7 +150,7 @@ public class ActivityEvents {
         Player player = event.getEntity();
         if (player.level().isClientSide) return;
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-            stats.addAscendXP(5);
+            stats.addAscendXP((int) (AscendConfig.COMMON.xpPerTrade.get() * AscendConfig.COMMON.xpMultiplier.get()));
             PlayerStatsProvider.sync(player);
         });
     }
@@ -178,7 +177,7 @@ public class ActivityEvents {
         if (player.level().isClientSide) return;
         if (event.getItemStack().getItem().getDescriptionId().contains("potion")) {
             player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-                stats.addAscendXP(3);
+                stats.addAscendXP((int) (AscendConfig.COMMON.xpPerPotion.get() * AscendConfig.COMMON.xpMultiplier.get()));
                 PlayerStatsProvider.sync(player);
             });
         }

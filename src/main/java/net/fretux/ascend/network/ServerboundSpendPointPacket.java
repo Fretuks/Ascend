@@ -1,11 +1,11 @@
 package net.fretux.ascend.network;
 
+import net.fretux.ascend.player.PlayerStatsProvider;
 import net.fretux.ascend.player.StatEffects;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
-import net.fretux.ascend.player.PlayerStatsProvider;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraft.nbt.CompoundTag;
 
@@ -31,9 +31,6 @@ public class ServerboundSpendPointPacket {
         context.enqueueWork(() -> {
             ServerPlayer player = context.getSender();
             if (player == null) return;
-
-            System.out.println("[Ascend] Received spend packet '" + attribute + "' from " + player.getGameProfile().getName());
-
             player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
                 boolean success = stats.spendPoints(attribute);
                 if (success) {

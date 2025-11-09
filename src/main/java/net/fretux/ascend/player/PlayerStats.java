@@ -1,18 +1,19 @@
 package net.fretux.ascend.player;
 
+import net.fretux.ascend.config.AscendConfig;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class PlayerStats {
-    public static final int MAX_ASCEND_LEVEL = 20;
-    public static final int POINTS_PER_LEVEL = 15;
+    public static final int POINTS_PER_LEVEL = AscendConfig.COMMON.pointsPerLevel.get();
+    public static final int MAX_ASCEND_LEVEL = AscendConfig.COMMON.maxAscendLevel.get();
+    public static final int MAX_ATTRIBUTE_POINTS = AscendConfig.COMMON.maxAttributePoints.get();
     private final Map<String, Integer> attributes = new HashMap<>();
     private int ascendLevel = 1;
     private int ascendXP = 0;
     private int unspentPoints = POINTS_PER_LEVEL;
-    public static final int MAX_ATTRIBUTE_POINTS = 100;
     public PlayerStats() {
         for (String attr : new String[]{
                 "strength", "agility", "fortitude", "intelligence",

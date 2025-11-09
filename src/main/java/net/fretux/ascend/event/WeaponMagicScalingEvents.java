@@ -1,6 +1,7 @@
 package net.fretux.ascend.event;
 
 import net.fretux.ascend.AscendMod;
+import net.fretux.ascend.config.AscendConfig;
 import net.fretux.ascend.player.PlayerStatsProvider;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
@@ -11,6 +12,7 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = AscendMod.MODID)
 public class WeaponMagicScalingEvents {
+    static double scale = AscendConfig.COMMON.attributeScalingMultiplier.get();
 
     @SubscribeEvent
     public static void onLivingHurt(LivingHurtEvent event) {
@@ -25,7 +27,7 @@ public class WeaponMagicScalingEvents {
                 if (magicScaling > 0) {
                     double perPoint = 0.005d;
                     double maxBonus = 0.40d;
-                    double bonusMult = 1.0d + Math.min(magicScaling * perPoint, maxBonus);
+                    double bonusMult = 1.0d + Math.min(magicScaling * perPoint * scale, maxBonus);
                     modified = (float) (modified * bonusMult);
                 }
             } else {
@@ -33,12 +35,10 @@ public class WeaponMagicScalingEvents {
                 if (player.getAttribute(Attributes.ATTACK_SPEED) != null) {
                     attackSpeed = player.getAttribute(Attributes.ATTACK_SPEED).getValue();
                 }
-
                 String key =
                         (attackSpeed >= 1.8d) ? "light_scaling" :
                                 (attackSpeed >= 1.2d) ? "medium_scaling" :
                                         "heavy_scaling";
-
                 int level = stats.getAttributeLevel(key);
                 if (level > 0) {
                     double perPoint =
@@ -46,7 +46,7 @@ public class WeaponMagicScalingEvents {
                                     key.equals("medium_scaling") ? 0.004d :
                                             0.005d;
                     double maxBonus = 0.40d;
-                    double bonusMult = 1.0d + Math.min(level * perPoint, maxBonus);
+                    double bonusMult = 1.0d + Math.min(level * perPoint * scale, maxBonus);
                     modified = (float) (modified * bonusMult);
                 }
             }

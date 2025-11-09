@@ -26,17 +26,16 @@ public class PlayerEvents {
 
     @SubscribeEvent
     public static void onPlayerClone(PlayerEvent.Clone event) {
-        if (!event.isWasDeath()) return;
         event.getOriginal().reviveCaps();
         event.getOriginal().getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(oldStats ->
                 event.getEntity().getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(newStats -> {
                     newStats.deserializeNBT(oldStats.serializeNBT());
-                    StatEffects.applyAll(event.getEntity());
-                    if (!event.getEntity().level().isClientSide) {
-                        PlayerStatsProvider.sync(event.getEntity());
-                    }
                 })
         );
+        if (!event.getEntity().level().isClientSide) {
+            StatEffects.applyAll(event.getEntity());
+            PlayerStatsProvider.sync(event.getEntity());
+        }
     }
 
     @SubscribeEvent
@@ -46,5 +45,4 @@ public class PlayerEvents {
             StatEffects.applyAll(event.getEntity());
         }
     }
-
 }

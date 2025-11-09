@@ -2,6 +2,7 @@ package net.fretux.ascend.network;
 
 import net.fretux.ascend.player.PlayerStats;
 import net.fretux.ascend.player.PlayerStatsProvider;
+import net.fretux.ascend.player.StatEffects;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -12,9 +13,17 @@ import java.util.function.Supplier;
 public class ClientboundSyncStatsPacket {
     private final CompoundTag data;
 
-    public ClientboundSyncStatsPacket(CompoundTag data) { this.data = data; }
-    public ClientboundSyncStatsPacket(FriendlyByteBuf buf) { this.data = buf.readNbt(); }
-    public void toBytes(FriendlyByteBuf buf) { buf.writeNbt(data); }
+    public ClientboundSyncStatsPacket(CompoundTag data) {
+        this.data = data;
+    }
+
+    public ClientboundSyncStatsPacket(FriendlyByteBuf buf) {
+        this.data = buf.readNbt();
+    }
+
+    public void toBytes(FriendlyByteBuf buf) {
+        buf.writeNbt(data);
+    }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         System.out.println("[SERVER] Spend packet handle() called");
@@ -22,7 +31,9 @@ public class ClientboundSyncStatsPacket {
             Minecraft mc = Minecraft.getInstance();
             var player = mc.player;
             if (player != null) {
-                player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+                mc.player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+                    stats.deserializeNBT(data);
+                    StatEffects.applyAll(mc.player);
                     stats.deserializeNBT(data);
                     System.out.println("[CLIENT] Before sync: points="
                             + player.getCapability(PlayerStatsProvider.PLAYER_STATS)
@@ -31,10 +42,9 @@ public class ClientboundSyncStatsPacket {
                     System.out.println("[CLIENT] After sync: points="
                             + player.getCapability(PlayerStatsProvider.PLAYER_STATS)
                             .map(PlayerStats::getUnspentPoints).orElse(-1));
-
                 });
             }
+            ctx.get().setPacketHandled(true);
         });
-        ctx.get().setPacketHandled(true);
     }
 }
