@@ -164,7 +164,7 @@ public class IronsSpellbooksCompat {
         double supportPerPoint = 0.003d;
         double supportMax = 0.30d;
         double supportBonus = Math.min(charisma * supportPerPoint, supportMax);
-        Attribute supportAttr = null;
+        Attribute supportAttr = (Attribute) AttributeRegistry.HOLY_SPELL_POWER.get();;
         if (supportAttr != null && supportBonus > 0.0d) {
             applyMultiplyBaseModifier(
                     player,
@@ -179,7 +179,7 @@ public class IronsSpellbooksCompat {
         double minionHpBonus = Math.min(charisma * minionHpPerPoint, 0.40d);
         double minionDmgBonus = Math.min(charisma * minionDmgPerPoint, 0.30d);
         Attribute summonHpAttr = null;
-        Attribute summonDmgAttr = null;
+        Attribute summonDmgAttr = (Attribute) AttributeRegistry.SUMMON_DAMAGE.get();
         if (summonHpAttr != null && minionHpBonus > 0.0d) {
             applyMultiplyBaseModifier(
                     player,
@@ -204,7 +204,7 @@ public class IronsSpellbooksCompat {
         removeModifier(player, (Attribute) AttributeRegistry.MAX_MANA.get(), CHA_MAX_MANA_UUID);
         Attribute supportAttr = null;
         Attribute summonHpAttr = null;
-        Attribute summonDmgAttr = null;
+        Attribute summonDmgAttr = (Attribute) AttributeRegistry.SUMMON_DAMAGE.get();
         if (supportAttr != null) {
             removeModifier(player, supportAttr, CHA_SUPPORT_POWER_UUID);
         }
