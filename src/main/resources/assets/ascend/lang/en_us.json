@@ -27,7 +27,10 @@
   "ascend.attribute.heavy_scaling.desc": "Improves heavy weapon performance.",
   "ascend.attribute.magic_scaling": "Magic Scaling",
   "ascend.attribute.magic_scaling.desc": "Increases spell power and mana efficiency for scaling spells.",
-
+  "item.ascend.moonseye_tome": "Moonseye Tome",
+  "item.ascend.moonseye_tome.desc": "A forbidden scripture that reveals knowledge of the Depths. Grants 100 Knowledge on first use, 50 afterwards.",
+  "item.ascend.moonseye_tome.used": "You gained %s Knowledge from the Moonseye Tome!",
+  "itemGroup.ascend": "Ascend",
   "ascend.attribute.display": "%s: %s"
 }
 

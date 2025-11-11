@@ -3,6 +3,7 @@ package net.fretux.ascend;
 import net.fretux.ascend.command.AscendCommand;
 import net.fretux.ascend.config.AscendConfig;
 import net.fretux.ascend.network.PacketHandler;
+import net.fretux.ascend.registry.ModItems;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -22,6 +23,7 @@ public class AscendMod {
         MinecraftForge.EVENT_BUS.register(this);
         System.out.println("[Ascend] Mod loaded! Side=" + FMLEnvironment.dist);
         net.minecraftforge.fml.ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, AscendConfig.COMMON_SPEC);
+        ModItems.register(modBus);
     }
 
     private void onCommonSetup(final FMLCommonSetupEvent event) {

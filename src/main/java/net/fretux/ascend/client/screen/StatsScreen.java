@@ -34,8 +34,6 @@ public class StatsScreen extends Screen {
             "willpower", "charisma",
             "light_scaling", "medium_scaling", "heavy_scaling", "magic_scaling"
     };
-
-    // Use translation keys for attribute labels and tooltips
     private static final Map<String, Component> ATTRIBUTE_TOOLTIPS = new HashMap<>();
 
     static {
@@ -49,10 +47,8 @@ public class StatsScreen extends Screen {
         super.init();
         this.leftPos = (this.width - WIDTH) / 2;
         this.topPos = (this.height - HEIGHT) / 2;
-
         this.plusButtons.clear();
         this.clearWidgets();
-
         int y = topPos + 55;
         for (String attr : ATTRIBUTES) {
             final String key = attr;
@@ -65,7 +61,6 @@ public class StatsScreen extends Screen {
             this.plusButtons.put(key, plus);
             y += 16;
         }
-
         Button done = Button.builder(Component.translatable("gui.done"), (btn) -> onClose())
                 .bounds(leftPos + WIDTH / 2 - 40, topPos + HEIGHT - 24, 80, 20)
                 .build();
@@ -79,7 +74,6 @@ public class StatsScreen extends Screen {
         gui.fill(leftPos - 4, topPos - 4, leftPos + WIDTH + 4, topPos + HEIGHT + 4, 0xAA000000);
         RenderSystem.disableBlend();
         gui.drawCenteredString(this.font, Component.translatable("ascend.stats.title"), this.width / 2, topPos + 8, 0xFFFFFF);
-
         hoveredAttributeKey = null;
         if (mc.player != null) {
             mc.player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
@@ -87,7 +81,6 @@ public class StatsScreen extends Screen {
                 int xp = stats.getAscendXP();
                 int xpNext = stats.getXPToNextAscendLevel();
                 int unspent = stats.getUnspentPoints();
-
                 gui.drawString(font, Component.translatable("ascend.stats.level", level, 20), leftPos + 10, topPos + 24, 0xFFFF55);
                 if (level < 20) {
                     gui.drawString(font, Component.translatable("ascend.stats.xp", xp, xpNext), leftPos + 10, topPos + 36, 0xAAAAAA);
@@ -96,7 +89,6 @@ public class StatsScreen extends Screen {
                 }
                 gui.drawString(font, Component.translatable("ascend.stats.unspent", unspent),
                         leftPos + WIDTH - 10 - font.width("Unspent Points: " + unspent), topPos + 24, 0x55FF55);
-
                 int y = topPos + 55;
                 for (String key : ATTRIBUTES) {
                     int attrLevel = stats.getAttributeLevel(key);
