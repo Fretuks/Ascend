@@ -1,49 +1,33 @@
 package net.fretux.ascend.player;
 
-import net.fretux.ascend.network.ClientboundSyncStatsPacket;
-import net.fretux.ascend.network.PacketHandler;
-import net.minecraft.core.Direction;
+import net.fretux.ascend.AscendMod;
+import net.fretux.ascend.network.ClientStatsPayload;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.common.capabilities.ICapabilitySerializable;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
-public class PlayerStatsProvider implements ICapabilitySerializable<CompoundTag> {
+public class PlayerStatsProvider {
 
-    public static final Capability<PlayerStats> PLAYER_STATS = CapabilityManager.get(new CapabilityToken<>(){});
-    private final PlayerStats stats = new PlayerStats();
-    private final LazyOptional<PlayerStats> optional = LazyOptional.of(() -> stats);
+    public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES =
+            DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, AscendMod.MODID);
 
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        return cap == PLAYER_STATS ? optional.cast() : LazyOptional.empty();
-    }
-
-    @Override
-    public CompoundTag serializeNBT() {
-        return stats.serializeNBT();
-    }
-
-    @Override
-    public void deserializeNBT(CompoundTag nbt) {
-        stats.deserializeNBT(nbt);
-    }
+    public static final Supplier<AttachmentType<PlayerStats>> PLAYER_STATS = ATTACHMENT_TYPES.register(
+            "player_stats",
+            () -> AttachmentType.<PlayerStats>builder(PlayerStats::new)
+                    .serialize(new PlayerStats.Serializer())
+                    .build()
+    );
 
     public static void sync(Player player) {
-        player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-            CompoundTag data = stats.serializeNBT();
-            PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player),
-                    new ClientboundSyncStatsPacket(data));
-        });
+        PlayerStats stats = player.getData(PLAYER_STATS);
+        CompoundTag data = stats.serializeNBT();
+        PacketDistributor.sendToPlayer((net.minecraft.server.level.ServerPlayer) player, new ClientStatsPayload(data));
     }
-
 }

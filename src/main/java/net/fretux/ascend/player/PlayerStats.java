@@ -2,6 +2,7 @@ package net.fretux.ascend.player;
 
 import net.fretux.ascend.config.AscendConfig;
 import net.minecraft.nbt.CompoundTag;
+import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +15,7 @@ public class PlayerStats {
     private int ascendLevel = 1;
     private int ascendXP = 0;
     private int unspentPoints = POINTS_PER_LEVEL;
+
     public PlayerStats() {
         for (String attr : new String[]{
                 "strength", "agility", "fortitude", "intelligence",
@@ -48,12 +50,12 @@ public class PlayerStats {
     public int getAscendXP() {
         return ascendXP;
     }
-    
+
     public int getXPToNextAscendLevel() {
         if (ascendLevel >= MAX_ASCEND_LEVEL) return 0;
         return 100 * ascendLevel;
     }
-    
+
     public int getUnspentPoints() {
         return unspentPoints;
     }
@@ -92,8 +94,8 @@ public class PlayerStats {
 
     public int getMaxMana() {
         int intelligence = getAttributeLevel("intelligence");
-        int base = 50;        
-        int perPoint = 3;    
+        int base = 50;
+        int perPoint = 3;
         return base + intelligence * perPoint;
     }
 
@@ -124,6 +126,20 @@ public class PlayerStats {
                 int loaded = attrTag.getInt(key);
                 attributes.put(key, Math.max(0, Math.min(loaded, MAX_ATTRIBUTE_POINTS)));
             }
+        }
+    }
+
+    public static class Serializer implements IAttachmentSerializer<CompoundTag, PlayerStats> {
+        @Override
+        public PlayerStats read(net.neoforged.neoforge.attachment.IAttachmentHolder holder, CompoundTag tag, net.minecraft.core.HolderLookup.Provider provider) {
+            PlayerStats stats = new PlayerStats();
+            stats.deserializeNBT(tag);
+            return stats;
+        }
+
+        @Override
+        public CompoundTag write(PlayerStats stats, net.minecraft.core.HolderLookup.Provider provider) {
+            return stats.serializeNBT();
         }
     }
 }
