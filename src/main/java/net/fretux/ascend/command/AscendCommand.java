@@ -5,18 +5,17 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.fretux.ascend.network.ClientStatsPayload;
 import net.fretux.ascend.player.PlayerStats;
 import net.fretux.ascend.player.PlayerStatsProvider;
 import net.fretux.ascend.player.StatEffects;
-import net.fretux.ascend.network.PacketHandler;
-import net.fretux.ascend.network.ClientboundSyncStatsPacket;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class AscendCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -43,18 +42,17 @@ public class AscendCommand {
 
     private static int getStats(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         ServerPlayer target = EntityArgument.getPlayer(ctx, "player");
-        target.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-            ctx.getSource().sendSuccess(() -> Component.literal("=== Ascend Stats for " + target.getName().getString() + " ==="), false);
-            ctx.getSource().sendSuccess(() ->
-                    Component.literal("Level: " + stats.getAscendLevel() + " | XP: " + stats.getAscendXP() + "/" + stats.getXPToNextAscendLevel()), false);
-            ctx.getSource().sendSuccess(() ->
-                    Component.literal("Unspent Points: " + stats.getUnspentPoints()), false);
-            CompoundTag attrTag = stats.serializeNBT().getCompound("Attributes");
-            for (String key : attrTag.getAllKeys()) {
-                int val = attrTag.getInt(key);
-                ctx.getSource().sendSuccess(() -> Component.literal(" - " + key + ": " + val), false);
-            }
-        });
+        var stats = target.getData(PlayerStatsProvider.PLAYER_STATS);
+        ctx.getSource().sendSuccess(() -> Component.literal("=== Ascend Stats for " + target.getName().getString() + " ==="), false);
+        ctx.getSource().sendSuccess(() ->
+                Component.literal("Level: " + stats.getAscendLevel() + " | XP: " + stats.getAscendXP() + "/" + stats.getXPToNextAscendLevel()), false);
+        ctx.getSource().sendSuccess(() ->
+                Component.literal("Unspent Points: " + stats.getUnspentPoints()), false);
+        CompoundTag attrTag = stats.serializeNBT().getCompound("Attributes");
+        for (String key : attrTag.getAllKeys()) {
+            int val = attrTag.getInt(key);
+            ctx.getSource().sendSuccess(() -> Component.literal(" - " + key + ": " + val), false);
+        }
         return 1;
     }
 
@@ -62,46 +60,40 @@ public class AscendCommand {
         ServerPlayer target = EntityArgument.getPlayer(ctx, "player");
         String attr = StringArgumentType.getString(ctx, "attribute");
         int value = IntegerArgumentType.getInteger(ctx, "value");
-        target.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-            stats.setAttributeLevel(attr, value);
-            StatEffects.applyAll(target);
-            sync(target, stats);
-            ctx.getSource().sendSuccess(() ->
-                    Component.literal("Set " + target.getName().getString() + "'s " + attr + " to " + value), true);
-        });
+        var stats = target.getData(PlayerStatsProvider.PLAYER_STATS);
+        stats.setAttributeLevel(attr, value);
+        StatEffects.applyAll(target);
+        sync(target, stats);
+        ctx.getSource().sendSuccess(() ->
+                Component.literal("Set " + target.getName().getString() + "'s " + attr + " to " + value), true);
         return 1;
     }
 
     private static int addXP(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         ServerPlayer target = EntityArgument.getPlayer(ctx, "player");
         int amount = IntegerArgumentType.getInteger(ctx, "amount");
-        target.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-            stats.addAscendXP(amount);
-            StatEffects.applyAll(target);
-            sync(target, stats);
-            ctx.getSource().sendSuccess(() ->
-                    Component.literal("Added " + amount + " Ascend XP to " + target.getName().getString()), true);
-        });
+        var stats = target.getData(PlayerStatsProvider.PLAYER_STATS);
+        stats.addAscendXP(amount);
+        StatEffects.applyAll(target);
+        sync(target, stats);
+        ctx.getSource().sendSuccess(() ->
+                Component.literal("Added " + amount + " Ascend XP to " + target.getName().getString()), true);
         return 1;
     }
 
     private static int resetStats(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         ServerPlayer target = EntityArgument.getPlayer(ctx, "player");
-        target.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-            PlayerStats fresh = new PlayerStats();
-            stats.deserializeNBT(fresh.serializeNBT());
-            StatEffects.applyAll(target);
-            sync(target, stats);
-            ctx.getSource().sendSuccess(() ->
-                    Component.literal("Reset " + target.getName().getString() + "'s Ascend stats."), true);
-        });
+        var stats = target.getData(PlayerStatsProvider.PLAYER_STATS);
+        PlayerStats fresh = new PlayerStats();
+        stats.deserializeNBT(fresh.serializeNBT());
+        StatEffects.applyAll(target);
+        sync(target, stats);
+        ctx.getSource().sendSuccess(() ->
+                Component.literal("Reset " + target.getName().getString() + "'s Ascend stats."), true);
         return 1;
     }
 
     private static void sync(ServerPlayer player, PlayerStats stats) {
-        PacketHandler.INSTANCE.send(
-                PacketDistributor.PLAYER.with(() -> player),
-                new ClientboundSyncStatsPacket(stats.serializeNBT())
-        );
+        PacketDistributor.sendToPlayer(player, new ClientStatsPayload(stats.serializeNBT()));
     }
 }
