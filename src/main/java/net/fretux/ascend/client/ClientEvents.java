@@ -2,15 +2,15 @@ package net.fretux.ascend.client;
 
 import net.fretux.ascend.client.screen.StatsScreen;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.fretux.ascend.AscendMod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.InputEvent;
 
 @OnlyIn(Dist.CLIENT)
-@Mod.EventBusSubscriber(modid = AscendMod.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = AscendMod.MODID, value = Dist.CLIENT)
 public class ClientEvents {
 
     @SubscribeEvent

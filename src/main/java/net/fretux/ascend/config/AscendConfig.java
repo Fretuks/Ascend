@@ -1,27 +1,27 @@
 package net.fretux.ascend.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class AscendConfig {
 
     public static class Common {
-        public final ForgeConfigSpec.IntValue xpPerMobKill;
-        public final ForgeConfigSpec.IntValue xpPerBlockBreak;
-        public final ForgeConfigSpec.IntValue xpPerCraft;
-        public final ForgeConfigSpec.IntValue xpPerSmelt;
-        public final ForgeConfigSpec.IntValue xpPerTrade;
-        public final ForgeConfigSpec.IntValue xpPerDamageTaken;
-        public final ForgeConfigSpec.IntValue xpPerMovement;
-        public final ForgeConfigSpec.IntValue xpPerPotion;
-        public final ForgeConfigSpec.IntValue pointsPerLevel;
-        public final ForgeConfigSpec.IntValue maxAscendLevel;
-        public final ForgeConfigSpec.IntValue maxAttributePoints;
+        public final ModConfigSpec.IntValue xpPerMobKill;
+        public final ModConfigSpec.IntValue xpPerBlockBreak;
+        public final ModConfigSpec.IntValue xpPerCraft;
+        public final ModConfigSpec.IntValue xpPerSmelt;
+        public final ModConfigSpec.IntValue xpPerTrade;
+        public final ModConfigSpec.IntValue xpPerDamageTaken;
+        public final ModConfigSpec.IntValue xpPerMovement;
+        public final ModConfigSpec.IntValue xpPerPotion;
+        public final ModConfigSpec.IntValue pointsPerLevel;
+        public final ModConfigSpec.IntValue maxAscendLevel;
+        public final ModConfigSpec.IntValue maxAttributePoints;
 
-        public final ForgeConfigSpec.DoubleValue xpMultiplier;
-        public final ForgeConfigSpec.DoubleValue attributeScalingMultiplier;
+        public final ModConfigSpec.DoubleValue xpMultiplier;
+        public final ModConfigSpec.DoubleValue attributeScalingMultiplier;
 
-        Common(ForgeConfigSpec.Builder builder) {
+        Common(ModConfigSpec.Builder builder) {
             builder.push("Ascend Progression");
 
             xpPerMobKill = builder.comment("Ascend XP gained for killing a mob.")
@@ -57,11 +57,11 @@ public class AscendConfig {
         }
     }
 
-    public static final ForgeConfigSpec COMMON_SPEC;
+    public static final ModConfigSpec COMMON_SPEC;
     public static final Common COMMON;
 
     static {
-        final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
+        final Pair<Common, ModConfigSpec> specPair = new ModConfigSpec.Builder().configure(Common::new);
         COMMON_SPEC = specPair.getRight();
         COMMON = specPair.getLeft();
     }

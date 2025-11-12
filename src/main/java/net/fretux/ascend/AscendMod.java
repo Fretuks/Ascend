@@ -2,37 +2,35 @@ package net.fretux.ascend;
 
 import net.fretux.ascend.command.AscendCommand;
 import net.fretux.ascend.config.AscendConfig;
-import net.fretux.ascend.network.PacketHandler;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.fretux.ascend.player.PlayerStatsProvider;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 @Mod(AscendMod.MODID)
 public class AscendMod {
     public static final String MODID = "ascend";
 
-    public AscendMod() {
-        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modBus.addListener(this::onCommonSetup);
-        MinecraftForge.EVENT_BUS.register(this);
+    public AscendMod(IEventBus modEventBus, ModContainer modContainer) {
+        modEventBus.addListener(this::onCommonSetup);
+        PlayerStatsProvider.ATTACHMENT_TYPES.register(modEventBus);
         System.out.println("[Ascend] Mod loaded! Side=" + FMLEnvironment.dist);
-        net.minecraftforge.fml.ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, AscendConfig.COMMON_SPEC);
+        modContainer.registerConfig(ModConfig.Type.COMMON, AscendConfig.COMMON_SPEC);
     }
 
     private void onCommonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            PacketHandler.register();
             System.out.println("[Ascend] Registering packets... Side=" + FMLEnvironment.dist);
         });
     }
     
     @SubscribeEvent
-    public static void onRegisterCommands(net.minecraftforge.event.RegisterCommandsEvent event) {
+    public static void onRegisterCommands(RegisterCommandsEvent event) {
         AscendCommand.register(event.getDispatcher());
     }
 }
