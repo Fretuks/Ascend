@@ -6,23 +6,23 @@ import net.fretux.ascend.player.PlayerStatsProvider;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 
-@Mod.EventBusSubscriber(modid = AscendMod.MODID)
+@EventBusSubscriber(modid = AscendMod.MODID)
 public class WeaponMagicScalingEvents {
     private static double getScaling() {
         return AscendConfig.COMMON.attributeScalingMultiplier.get();
     }
 
     @SubscribeEvent
-    public static void onLivingHurt(LivingHurtEvent event) {
+    public static void onLivingHurt(LivingDamageEvent.Pre event) {
         if (!(event.getSource().getEntity() instanceof Player player)) return;
         if (event.getEntity() == player) return;
         if (player.level().isClientSide) return;
-        player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-            float base = event.getAmount();
+        var stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
+            float base = event.getOriginalDamage();
             float modified = base;
             if (isMagicDamage(event.getSource())) {
                 int magicScaling = stats.getAttributeLevel("magic_scaling");
@@ -54,9 +54,8 @@ public class WeaponMagicScalingEvents {
             }
 
             if (modified != base) {
-                event.setAmount(modified);
+                event.setNewDamage(modified);
             }
-        });
     }
 
     private static boolean isMagicDamage(DamageSource source) {
