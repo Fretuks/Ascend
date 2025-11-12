@@ -1,14 +1,14 @@
 package net.fretux.ascend.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.fretux.ascend.network.PacketHandler;
-import net.fretux.ascend.network.ServerboundSpendPointPacket;
+import net.fretux.ascend.network.ServerStatsPayload;
 import net.fretux.ascend.player.PlayerStatsProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +57,7 @@ public class StatsScreen extends Screen {
         for (String attr : ATTRIBUTES) {
             final String key = attr;
             Button plus = Button.builder(Component.literal("+"), (button) -> {
-                        PacketHandler.INSTANCE.sendToServer(new ServerboundSpendPointPacket(key));
+                        PacketDistributor.sendToServer(new ServerStatsPayload(key));
                     })
                     .bounds(leftPos + WIDTH - 40, y - 6, 30, 18)
                     .build();
@@ -74,7 +74,7 @@ public class StatsScreen extends Screen {
 
     @Override
     public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(gui);
+        this.renderBackground(gui, mouseX, mouseY,  partialTicks);
         RenderSystem.enableBlend();
         gui.fill(leftPos - 4, topPos - 4, leftPos + WIDTH + 4, topPos + HEIGHT + 4, 0xAA000000);
         RenderSystem.disableBlend();
@@ -82,46 +82,45 @@ public class StatsScreen extends Screen {
 
         hoveredAttributeKey = null;
         if (mc.player != null) {
-            mc.player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-                int level = stats.getAscendLevel();
-                int xp = stats.getAscendXP();
-                int xpNext = stats.getXPToNextAscendLevel();
-                int unspent = stats.getUnspentPoints();
+            var stats = mc.player.getData(PlayerStatsProvider.PLAYER_STATS);
+            int level = stats.getAscendLevel();
+            int xp = stats.getAscendXP();
+            int xpNext = stats.getXPToNextAscendLevel();
+            int unspent = stats.getUnspentPoints();
 
-                gui.drawString(font, Component.translatable("ascend.stats.level", level, 20), leftPos + 10, topPos + 24, 0xFFFF55);
-                if (level < 20) {
-                    gui.drawString(font, Component.translatable("ascend.stats.xp", xp, xpNext), leftPos + 10, topPos + 36, 0xAAAAAA);
-                } else {
-                    gui.drawString(font, Component.translatable("ascend.stats.xp_max"), leftPos + 10, topPos + 36, 0xAAAAAA);
+            gui.drawString(font, Component.translatable("ascend.stats.level", level, 20), leftPos + 10, topPos + 24, 0xFFFF55);
+            if (level < 20) {
+                gui.drawString(font, Component.translatable("ascend.stats.xp", xp, xpNext), leftPos + 10, topPos + 36, 0xAAAAAA);
+            } else {
+                gui.drawString(font, Component.translatable("ascend.stats.xp_max"), leftPos + 10, topPos + 36, 0xAAAAAA);
+            }
+            gui.drawString(font, Component.translatable("ascend.stats.unspent", unspent),
+                    leftPos + WIDTH - 10 - font.width("Unspent Points: " + unspent), topPos + 24, 0x55FF55);
+
+            int y = topPos + 55;
+            for (String key : ATTRIBUTES) {
+                int attrLevel = stats.getAttributeLevel(key);
+                int cost = stats.getCostToUpgrade(key);
+                Component name = Component.translatable("ascend.attribute." + key);
+                Component label = Component.translatable("ascend.attribute.display", name, attrLevel);
+                int labelX = leftPos + 10;
+                gui.drawString(font, label, labelX, y, 0xFFFFFF);
+
+                Button plus = plusButtons.get(key);
+                if (plus != null) {
+                    plus.setX(leftPos + WIDTH - 40);
+                    plus.setY(y - 6);
+                    plus.active = (unspent >= cost);
+                    plus.setMessage(Component.literal("+" + cost));
                 }
-                gui.drawString(font, Component.translatable("ascend.stats.unspent", unspent),
-                        leftPos + WIDTH - 10 - font.width("Unspent Points: " + unspent), topPos + 24, 0x55FF55);
 
-                int y = topPos + 55;
-                for (String key : ATTRIBUTES) {
-                    int attrLevel = stats.getAttributeLevel(key);
-                    int cost = stats.getCostToUpgrade(key);
-                    Component name = Component.translatable("ascend.attribute." + key);
-                    Component label = Component.translatable("ascend.attribute.display", name, attrLevel);
-                    int labelX = leftPos + 10;
-                    gui.drawString(font, label, labelX, y, 0xFFFFFF);
-
-                    Button plus = plusButtons.get(key);
-                    if (plus != null) {
-                        plus.setX(leftPos + WIDTH - 40);
-                        plus.setY(y - 6);
-                        plus.active = (unspent >= cost);
-                        plus.setMessage(Component.literal("+" + cost));
-                    }
-
-                    int labelWidth = font.width(label);
-                    if (mouseX >= labelX && mouseX <= labelX + labelWidth
-                            && mouseY >= y && mouseY <= y + font.lineHeight) {
-                        hoveredAttributeKey = key;
-                    }
-                    y += 16;
+                int labelWidth = font.width(label);
+                if (mouseX >= labelX && mouseX <= labelX + labelWidth
+                        && mouseY >= y && mouseY <= y + font.lineHeight) {
+                    hoveredAttributeKey = key;
                 }
-            });
+                y += 16;
+            }
         }
 
         super.render(gui, mouseX, mouseY, partialTicks);
