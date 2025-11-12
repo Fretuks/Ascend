@@ -30,5 +30,10 @@ public class PacketHandler {
                 .decoder(ClientboundSyncStatsPacket::new)
                 .consumerMainThread(ClientboundSyncStatsPacket::handle)
                 .add();
+
+        INSTANCE.registerMessage(id++, ServerboundShrineChoicePacket.class,
+                ServerboundShrineChoicePacket::toBytes,
+                ServerboundShrineChoicePacket::new,
+                ServerboundShrineChoicePacket::handle);
     }
 }

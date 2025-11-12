@@ -25,13 +25,13 @@ public class AscendConfig {
             builder.push("Ascend Progression");
 
             xpPerMobKill = builder.comment("Ascend XP gained for killing a mob.")
-                    .defineInRange("xpPerMobKill", 5, 0, 1000);
+                    .defineInRange("xpPerMobKill", 10, 0, 1000);
             xpPerBlockBreak = builder.comment("Ascend XP gained for breaking a block (ore/stone/log).")
                     .defineInRange("xpPerBlockBreak", 2, 0, 1000);
             xpPerCraft = builder.comment("Ascend XP gained for crafting items.")
-                    .defineInRange("xpPerCraft", 3, 0, 1000);
+                    .defineInRange("xpPerCraft", 1, 0, 1000);
             xpPerSmelt = builder.comment("Ascend XP gained for smelting items.")
-                    .defineInRange("xpPerSmelt", 2, 0, 1000);
+                    .defineInRange("xpPerSmelt", 1, 0, 1000);
             xpPerTrade = builder.comment("Ascend XP gained for trading with villagers.")
                     .defineInRange("xpPerTrade", 5, 0, 1000);
             xpPerDamageTaken = builder.comment("Ascend XP gained for taking damage.")

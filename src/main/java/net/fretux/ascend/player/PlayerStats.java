@@ -109,6 +109,16 @@ public class PlayerStats {
         knowledge = Math.max(0, knowledge + amount);
     }
 
+    public void refundAllPoints() {
+        int totalSpent = 0;
+        for (String key : attributes.keySet()) {
+            int lvl = attributes.get(key);
+            totalSpent += lvl;
+            attributes.put(key, 0);
+        }
+        unspentPoints += totalSpent;
+    }
+
     public boolean hasUsedMoonseye() {
         return hasUsedMoonseye;
     }

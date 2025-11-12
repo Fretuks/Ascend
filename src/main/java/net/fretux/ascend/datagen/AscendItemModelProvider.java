@@ -1,6 +1,7 @@
 package net.fretux.ascend.datagen;
 
 import net.fretux.ascend.AscendMod;
+import net.fretux.ascend.registry.ModBlocks;
 import net.fretux.ascend.registry.ModItems;
 import net.minecraft.data.PackOutput;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
@@ -18,6 +19,8 @@ public class AscendItemModelProvider extends ItemModelProvider {
     protected void registerModels() {
         assert ModItems.MOONSEYE_TOME.getId() != null;
         basicItem(ModItems.MOONSEYE_TOME.getId().getPath());
+        withExistingParent(ModBlocks.SHRINE_OF_REMEMBRANCE.getId().getPath(),
+                modLoc("block/" + ModBlocks.SHRINE_OF_REMEMBRANCE.getId().getPath()));
     }
 
     private void basicItem(String name) {

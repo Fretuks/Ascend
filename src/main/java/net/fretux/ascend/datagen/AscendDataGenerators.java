@@ -1,6 +1,9 @@
 package net.fretux.ascend.datagen;
 
 import net.fretux.ascend.AscendMod;
+import net.fretux.ascend.worldgen.ModWorldGenProvider;
+import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -14,11 +17,13 @@ public class AscendDataGenerators {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public static void gatherData(GatherDataEvent event) {
-        var generator = event.getGenerator();
-        ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
+        DataGenerator generator = event.getGenerator();
+        PackOutput output = generator.getPackOutput();
+        ExistingFileHelper helper = event.getExistingFileHelper();
 
-        if (event.includeClient()) {
-            generator.addProvider(true, new AscendItemModelProvider(generator.getPackOutput(), existingFileHelper));
-        }
+        generator.addProvider(event.includeClient(), new ModBlockStateProvider(output, helper));
+        generator.addProvider(event.includeClient(), new AscendItemModelProvider(output, helper));
+        generator.addProvider(event.includeServer(), new ModLootTableProvider(output));
+        generator.addProvider(event.includeServer(), new ModWorldGenProvider(output, event.getLookupProvider()));
     }
 }
