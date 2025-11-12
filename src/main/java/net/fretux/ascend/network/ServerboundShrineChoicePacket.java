@@ -4,6 +4,9 @@ import net.fretux.ascend.player.PlayerStatsProvider;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
 
@@ -37,7 +40,10 @@ public class ServerboundShrineChoicePacket {
                         player.sendSystemMessage(Component.literal("FOOLISH... YET HONEST."));
                     } else {
                         player.sendSystemMessage(Component.literal("YOUR MIND IS TOO EMPTY TO BE WORTH MY TOUCH."));
-                        player.kill();
+                        player.hurt(player.level().damageSources().magic(), 4.0F);
+                        Vec3 look = player.getLookAngle().normalize().scale(-2.0D);
+                        player.setDeltaMovement(look.x * 5, 0.8, look.z * 5);
+                        player.hurtMarked = true;
                     }
                     PlayerStatsProvider.sync(player);
                 }

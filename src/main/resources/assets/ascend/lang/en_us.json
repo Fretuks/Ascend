@@ -31,6 +31,7 @@
   "item.ascend.moonseye_tome.desc": "A forbidden scripture that reveals knowledge of the Depths. Grants 100 Knowledge on first use, 50 afterwards.",
   "item.ascend.moonseye_tome.used": "You gained %s Knowledge from the Moonseye Tome!",
   "itemGroup.ascend": "Ascend",
-  "ascend.attribute.display": "%s: %s"
+  "ascend.attribute.display": "%s: %s",
+  "ascend.stats.knowledge": "Knowledge: %s"
 }
 
