@@ -12,18 +12,17 @@ import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraft.world.entity.LivingEntity;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
-@Mod.EventBusSubscriber(modid = AscendMod.MODID)
+@EventBusSubscriber(modid = AscendMod.MODID)
 public class ActivityEvents {
 
     private static int agilityTickCounter = 0;
@@ -33,10 +32,9 @@ public class ActivityEvents {
     @SubscribeEvent
     public static void onMobKilled(LivingDeathEvent event) {
         if (event.getSource().getEntity() instanceof Player player && !player.level().isClientSide) {
-            player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+            var stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
                 stats.addAscendXP((int) (AscendConfig.COMMON.xpPerMobKill.get() * AscendConfig.COMMON.xpMultiplier.get()));
                 PlayerStatsProvider.sync(player);
-            });
         }
     }
 
@@ -46,50 +44,47 @@ public class ActivityEvents {
         if (player == null || player.level().isClientSide) return;
         Block block = event.getState().getBlock();
         String name = block.getName().getString().toLowerCase();
-        player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+        var stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
             if (name.contains("log") || name.contains("ore") || name.contains("stone")) {
                 stats.addAscendXP((int) (AscendConfig.COMMON.xpPerBlockBreak.get() * AscendConfig.COMMON.xpMultiplier.get()));
                 PlayerStatsProvider.sync(player);
             }
-        });
     }
 
     @SubscribeEvent
-    public static void onPlayerDamaged(LivingHurtEvent event) {
+    public static void onPlayerDamaged(LivingDamageEvent.Pre event) {
         if (event.getEntity() instanceof Player player && !player.level().isClientSide) {
-            player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-                int gain = Math.min((int) event.getAmount() / 2, 10);
+            var stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
+                int gain = Math.min((int) event.getOriginalDamage() / 2, 10);
                 stats.addAscendXP(gain);
                 PlayerStatsProvider.sync(player);
-            });
         }
     }
 
     @SubscribeEvent
-    public static void onPlayerTickFortitude(TickEvent.PlayerTickEvent event) {
-        Player player = event.player;
-        if (player.level().isClientSide || event.phase != TickEvent.Phase.END) return;
+    public static void onPlayerTickFortitude(PlayerTickEvent.Pre event) {
+        Player player = event.getEntity();
+        if (player.level().isClientSide) return;
 
         fortitudeTickCounter++;
         if (fortitudeTickCounter % 100 == 0) {
-            player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+            var stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
                 boolean hasNegativeEffect = player.getActiveEffects().stream()
-                        .anyMatch(e -> e.getEffect().getCategory() == MobEffectCategory.HARMFUL);
+                        .anyMatch(e -> e.getEffect().value().getCategory() == MobEffectCategory.HARMFUL);
                 if (player.getFoodData().getFoodLevel() <= 6 || hasNegativeEffect) {
                     stats.addAscendXP((int) (AscendConfig.COMMON.xpPerDamageTaken.get() * AscendConfig.COMMON.xpMultiplier.get()));
                     PlayerStatsProvider.sync(player);
                 }
-            });
         }
     }
 
     @SubscribeEvent
-    public static void onPlayerTickAgility(TickEvent.PlayerTickEvent event) {
-        Player player = event.player;
-        if (player.level().isClientSide || event.phase != TickEvent.Phase.END) return;
+    public static void onPlayerTickAgility(PlayerTickEvent.Pre event) {
+        Player player = event.getEntity();
+        if (player.level().isClientSide) return;
         agilityTickCounter++;
         if (agilityTickCounter % 40 != 0) return;
-        player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+        var stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
             boolean didAgileThing =
                     player.isSprinting()
                             || player.isCrouching()
@@ -99,38 +94,35 @@ public class ActivityEvents {
                 stats.addAscendXP((int) (AscendConfig.COMMON.xpPerMovement.get() * AscendConfig.COMMON.xpMultiplier.get()));
                 PlayerStatsProvider.sync(player);
             }
-        });
     }
 
     @SubscribeEvent
     public static void onItemCrafted(PlayerEvent.ItemCraftedEvent event) {
         Player player = event.getEntity();
         if (player.level().isClientSide) return;
-        player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+        var stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
             stats.addAscendXP((int) (AscendConfig.COMMON.xpPerCraft.get() * AscendConfig.COMMON.xpMultiplier.get()));
             PlayerStatsProvider.sync(player);
-        });
     }
 
     @SubscribeEvent
     public static void onItemSmelted(PlayerEvent.ItemSmeltedEvent event) {
         Player player = event.getEntity();
         if (player.level().isClientSide) return;
-        player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+        var stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
             stats.addAscendXP((int) (AscendConfig.COMMON.xpPerSmelt.get() * AscendConfig.COMMON.xpMultiplier.get()));
             PlayerStatsProvider.sync(player);
-        });
     }
 
     @SubscribeEvent
-    public static void onPlayerTickWillpower(TickEvent.PlayerTickEvent event) {
-        Player player = event.player;
-        if (player.level().isClientSide || event.phase != TickEvent.Phase.END) return;
+    public static void onPlayerTickWillpower(PlayerTickEvent.Pre event) {
+        Player player = event.getEntity();
+        if (player.level().isClientSide) return;
         willpowerTickCounter++;
         if (willpowerTickCounter % 200 != 0) return;
-        player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+        var stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
             boolean hasNegativeEffect = player.getActiveEffects().stream()
-                    .anyMatch(e -> e.getEffect().getCategory() == MobEffectCategory.HARMFUL);
+                    .anyMatch(e -> e.getEffect().value().getCategory() == MobEffectCategory.HARMFUL);
             boolean lowHealth = player.getHealth() <= player.getMaxHealth() * 0.25f;
             BlockPos pos = player.blockPosition();
             int blockLight = player.level().getBrightness(LightLayer.BLOCK, pos);
@@ -141,7 +133,6 @@ public class ActivityEvents {
                 stats.addAscendXP(1);
                 PlayerStatsProvider.sync(player);
             }
-        });
     }
 
     @SubscribeEvent
@@ -149,18 +140,17 @@ public class ActivityEvents {
         if (!(event.getTarget() instanceof Villager villager)) return;
         Player player = event.getEntity();
         if (player.level().isClientSide) return;
-        player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+        var stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
             stats.addAscendXP((int) (AscendConfig.COMMON.xpPerTrade.get() * AscendConfig.COMMON.xpMultiplier.get()));
             PlayerStatsProvider.sync(player);
-        });
     }
 
     @SubscribeEvent
-    public static void onWeaponUsed(LivingHurtEvent event) {
+    public static void onWeaponUsed(LivingDamageEvent.Pre event) {
         if (!(event.getSource().getEntity() instanceof Player player)) return;
         if (player.level().isClientSide) return;
         if (event.getEntity() == player) return;
-        player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+        var stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
             var heldItem = player.getMainHandItem();
             if (heldItem.isEmpty()) return;
             double attackSpeed = player.getAttribute(
@@ -168,7 +158,6 @@ public class ActivityEvents {
             ).getBaseValue();
             stats.addAscendXP(3);
             PlayerStatsProvider.sync(player);
-        });
     }
 
     @SubscribeEvent
@@ -176,22 +165,20 @@ public class ActivityEvents {
         Player player = event.getEntity();
         if (player.level().isClientSide) return;
         if (event.getItemStack().getItem().getDescriptionId().contains("potion")) {
-            player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+            var stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
                 stats.addAscendXP((int) (AscendConfig.COMMON.xpPerPotion.get() * AscendConfig.COMMON.xpMultiplier.get()));
                 PlayerStatsProvider.sync(player);
-            });
         }
     }
 
     @SubscribeEvent
-    public static void onGainPotionEffect(net.minecraftforge.event.entity.living.MobEffectEvent.Added event) {
+    public static void onGainPotionEffect(net.neoforged.neoforge.event.entity.living.MobEffectEvent.Added event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (player.level().isClientSide) return;
-        if (event.getEffectInstance().getEffect().getCategory() == net.minecraft.world.effect.MobEffectCategory.BENEFICIAL) {
-            player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+        if (event.getEffectInstance().getEffect().value().getCategory() == net.minecraft.world.effect.MobEffectCategory.BENEFICIAL) {
+            var stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
                 stats.addAscendXP(2);
                 PlayerStatsProvider.sync(player);
-            });
         }
     }
 
@@ -201,43 +188,41 @@ public class ActivityEvents {
         if (player.level().isClientSide) return;
         String itemName = event.getSmelting().getDisplayName().getString().toLowerCase();
         if (itemName.contains("potion") || itemName.contains("elixir")) {
-            player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+            var stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
                 stats.addAscendXP(3);
                 PlayerStatsProvider.sync(player);
-            });
         }
     }
 
     @SubscribeEvent
-    public static void onPlayerDealsDamage(LivingDamageEvent event) {
+    public static void onPlayerDealsDamage(LivingDamageEvent.Pre event) {
         if (!(event.getSource().getEntity() instanceof Player player)) return;
         if (player.level().isClientSide) return;
         LivingEntity target = event.getEntity();
-        player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+        var stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
             int strength = stats.getAttributeLevel("strength");
             if (strength <= 0) return;
             float bypassFraction = Math.min(strength * 0.001f, 0.30f);
             int armor = target.getArmorValue();
             if (armor <= 0 || bypassFraction <= 0f) return;
-            float baseDamage = event.getAmount();
+            float baseDamage = event.getOriginalDamage();
             float armorFactor = (float) armor / (armor + 100.0f);
             float bonus = baseDamage * armorFactor * bypassFraction;
-            event.setAmount(baseDamage + bonus);
-        });
+            event.setNewDamage(baseDamage + bonus);
     }
 
     @SubscribeEvent
-    public static void onPlayerEvasion(LivingHurtEvent event) {
+    public static void onPlayerEvasion(LivingDamageEvent.Pre event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (player.level().isClientSide) return;
-        if (event.getAmount() <= 0) return;
-        player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+        if (event.getOriginalDamage() <= 0) return;
+        var stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
             int agility = stats.getAttributeLevel("agility");
             if (agility <= 0) return;
             double evadeChance = Math.min(agility * 0.0005d, 0.05d);
             if (player.getRandom().nextDouble() < evadeChance) {
-                float original = event.getAmount();
-                event.setAmount(original * 0.1f);
+                float original = event.getOriginalDamage();
+                event.setNewDamage(original * 0.1f);
                 if (player.level() instanceof ServerLevel serverLevel) {
                     for (int i = 0; i < 8; i++) {
                         double offsetX = (serverLevel.random.nextDouble() - 0.5) * 0.6;
@@ -255,6 +240,5 @@ public class ActivityEvents {
                 }
                 player.playSound(SoundEvents.ENDERMAN_TELEPORT, 0.4f, 1.5f);
             }
-        });
     }
 }

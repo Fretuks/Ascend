@@ -1,43 +1,43 @@
+
 package net.fretux.ascend.compat;
 
 import io.redspace.ironsspellbooks.api.registry.AttributeRegistry;
 import net.fretux.ascend.player.PlayerStatsProvider;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.fml.ModList;
-
-import java.util.UUID;
+import net.neoforged.fml.ModList;
 
 public class IronsSpellbooksCompat {
-    private static final UUID INT_MAX_MANA_UUID =
-            UUID.fromString("11111111-1111-4111-8111-111111111111");
-    private static final UUID INT_SPELL_POWER_UUID =
-            UUID.fromString("22222222-2222-4222-8222-222222222222");
-    private static final UUID INT_MANA_REGEN_UUID =
-            UUID.fromString("33333333-3333-4333-8333-333333333333");
-    private static final UUID INT_COOLDOWN_REDUCTION_UUID =
-            UUID.fromString("44444444-4444-4444-8444-444444444444");
-    private static final UUID CHA_MAX_MANA_UUID =
-            UUID.fromString("55555555-5555-4555-8555-555555555555");
-    // reserved for future spell-trade hooks
-    private static final UUID CHA_SPELL_TRADE_UUID =
-            UUID.fromString("66666666-6666-4666-8666-666666666666");
-    private static final UUID MAG_SPELL_POWER_UUID =
-            UUID.fromString("77777777-7777-4777-8777-777777777777");
-    private static final UUID MAG_MANA_REGEN_UUID =
-            UUID.fromString("88888888-8888-4888-8888-888888888888");
-    private static final UUID MAG_COOLDOWN_REDUCTION_UUID =
-            UUID.fromString("99999999-9999-4999-8999-999999999999");
-    private static final UUID WILL_MANA_COST_UUID =
-            UUID.fromString("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
-    private static final UUID CHA_SUPPORT_POWER_UUID =
-            UUID.fromString("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb");
-    private static final UUID CHA_SUMMON_HEALTH_UUID =
-            UUID.fromString("cccccccc-cccc-4ccc-8ccc-cccccccccccc");
-    private static final UUID CHA_SUMMON_DAMAGE_UUID =
-            UUID.fromString("dddddddd-dddd-4ddd-8ddd-dddddddddddd");
+    private static final ResourceLocation INT_MAX_MANA_ID =
+            ResourceLocation.fromNamespaceAndPath("ascend", "int_max_mana");
+    private static final ResourceLocation INT_SPELL_POWER_ID =
+            ResourceLocation.fromNamespaceAndPath("ascend", "int_spell_power");
+    private static final ResourceLocation INT_MANA_REGEN_ID =
+            ResourceLocation.fromNamespaceAndPath("ascend", "int_mana_regen");
+    private static final ResourceLocation INT_COOLDOWN_REDUCTION_ID =
+            ResourceLocation.fromNamespaceAndPath("ascend", "int_cooldown_reduction");
+    private static final ResourceLocation CHA_MAX_MANA_ID =
+            ResourceLocation.fromNamespaceAndPath("ascend", "cha_max_mana");
+    private static final ResourceLocation CHA_SPELL_TRADE_ID =
+            ResourceLocation.fromNamespaceAndPath("ascend", "cha_spell_trade");
+    private static final ResourceLocation MAG_SPELL_POWER_ID =
+            ResourceLocation.fromNamespaceAndPath("ascend", "mag_spell_power");
+    private static final ResourceLocation MAG_MANA_REGEN_ID =
+            ResourceLocation.fromNamespaceAndPath("ascend", "mag_mana_regen");
+    private static final ResourceLocation MAG_COOLDOWN_REDUCTION_ID =
+            ResourceLocation.fromNamespaceAndPath("ascend", "mag_cooldown_reduction");
+    private static final ResourceLocation WILL_MANA_COST_ID =
+            ResourceLocation.fromNamespaceAndPath("ascend", "will_cast_time");
+    private static final ResourceLocation CHA_SUPPORT_POWER_ID =
+            ResourceLocation.fromNamespaceAndPath("ascend", "cha_support_power");
+    private static final ResourceLocation CHA_SUMMON_HEALTH_ID =
+            ResourceLocation.fromNamespaceAndPath("ascend", "cha_summon_health");
+    private static final ResourceLocation CHA_SUMMON_DAMAGE_ID =
+            ResourceLocation.fromNamespaceAndPath("ascend", "cha_summon_damage");
 
 
     private IronsSpellbooksCompat() {
@@ -50,17 +50,16 @@ public class IronsSpellbooksCompat {
     public static void applyAll(Player player) {
         if (!isLoaded()) return;
 
-        player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-            int intelligence = stats.getAttributeLevel("intelligence");
-            int charisma = stats.getAttributeLevel("charisma");
-            int magicScaling = stats.getAttributeLevel("magic_scaling");
-            int willpower = stats.getAttributeLevel("willpower");
+        var stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
+        int intelligence = stats.getAttributeLevel("intelligence");
+        int charisma = stats.getAttributeLevel("charisma");
+        int magicScaling = stats.getAttributeLevel("magic_scaling");
+        int willpower = stats.getAttributeLevel("willpower");
 
-            applyIntelligence(player, intelligence);
-            applyCharisma(player, charisma); // now also handles support/summons internally
-            applyMagicScaling(player, magicScaling);
-            applyWillpowerCastEfficiency(player, willpower);
-        });
+        applyIntelligence(player, intelligence);
+        applyCharisma(player, charisma);
+        applyMagicScaling(player, magicScaling);
+        applyWillpowerCastEfficiency(player, willpower);
     }
 
     public static void applyIntelligence(Player player, int intelligence) {
@@ -70,9 +69,8 @@ public class IronsSpellbooksCompat {
         }
         applyAddModifier(
                 player,
-                (Attribute) AttributeRegistry.MAX_MANA.get(),
-                INT_MAX_MANA_UUID,
-                "Ascend INT max mana",
+                (Holder<Attribute>) AttributeRegistry.MAX_MANA.get(),
+                INT_MAX_MANA_ID,
                 intelligence * 2.0d
         );
         double spellPowerPerPoint = 0.004d;
@@ -80,9 +78,8 @@ public class IronsSpellbooksCompat {
         double spellPowerBonus = Math.min(intelligence * spellPowerPerPoint, spellPowerMax);
         applyMultiplyBaseModifier(
                 player,
-                (Attribute) AttributeRegistry.SPELL_POWER.get(),
-                INT_SPELL_POWER_UUID,
-                "Ascend INT spell power",
+                (Holder<Attribute>) AttributeRegistry.SPELL_POWER.get(),
+                INT_SPELL_POWER_ID,
                 spellPowerBonus
         );
         double regenPerPoint = 0.002d;
@@ -90,9 +87,8 @@ public class IronsSpellbooksCompat {
         double regenBonus = Math.min(intelligence * regenPerPoint, regenMax);
         applyMultiplyBaseModifier(
                 player,
-                (Attribute) AttributeRegistry.MANA_REGEN.get(),
-                INT_MANA_REGEN_UUID,
-                "Ascend INT mana regen",
+                (Holder<Attribute>) AttributeRegistry.MANA_REGEN.get(),
+                INT_MANA_REGEN_ID,
                 regenBonus
         );
         double cdrPerPoint = 0.0015d;
@@ -100,18 +96,17 @@ public class IronsSpellbooksCompat {
         double cdrBonus = Math.min(intelligence * cdrPerPoint, cdrMax);
         applyMultiplyBaseModifier(
                 player,
-                (Attribute) AttributeRegistry.COOLDOWN_REDUCTION.get(),
-                INT_COOLDOWN_REDUCTION_UUID,
-                "Ascend INT cooldown reduction",
+                (Holder<Attribute>) AttributeRegistry.COOLDOWN_REDUCTION.get(),
+                INT_COOLDOWN_REDUCTION_ID,
                 cdrBonus
         );
     }
 
     private static void clearIntelligence(Player player) {
-        removeModifier(player, (Attribute) AttributeRegistry.MAX_MANA.get(), INT_MAX_MANA_UUID);
-        removeModifier(player, (Attribute) AttributeRegistry.SPELL_POWER.get(), INT_SPELL_POWER_UUID);
-        removeModifier(player, (Attribute) AttributeRegistry.MANA_REGEN.get(), INT_MANA_REGEN_UUID);
-        removeModifier(player, (Attribute) AttributeRegistry.COOLDOWN_REDUCTION.get(), INT_COOLDOWN_REDUCTION_UUID);
+        removeModifier(player, (Holder<Attribute>) AttributeRegistry.MAX_MANA.get(), INT_MAX_MANA_ID);
+        removeModifier(player, (Holder<Attribute>) AttributeRegistry.SPELL_POWER.get(), INT_SPELL_POWER_ID);
+        removeModifier(player, (Holder<Attribute>) AttributeRegistry.MANA_REGEN.get(), INT_MANA_REGEN_ID);
+        removeModifier(player, (Holder<Attribute>) AttributeRegistry.COOLDOWN_REDUCTION.get(), INT_COOLDOWN_REDUCTION_ID);
     }
 
     public static void applyWillpowerCastEfficiency(Player player, int willpower) {
@@ -122,29 +117,28 @@ public class IronsSpellbooksCompat {
         double perPoint = 0.0025d;
         double max = 0.25d;
         double reduction = Math.min(willpower * perPoint, max);
-        Attribute attr = (Attribute) AttributeRegistry.CAST_TIME_REDUCTION.get();
-        if (attr == null) {
+        Holder<Attribute> attrHolder = (Holder<Attribute>) AttributeRegistry.CAST_TIME_REDUCTION.get();
+        if (attrHolder == null) {
             return;
         }
-        AttributeInstance inst = player.getAttribute(attr);
+        AttributeInstance inst = player.getAttribute(attrHolder);
         if (inst == null) {
             return;
         }
-        inst.removeModifier(WILL_MANA_COST_UUID);
+        inst.removeModifier(WILL_MANA_COST_ID);
         if (reduction > 0.0d) {
             inst.addTransientModifier(new AttributeModifier(
-                    WILL_MANA_COST_UUID,
-                    "Ascend WILL casting time reduction",
+                    WILL_MANA_COST_ID,
                     -reduction,
-                    AttributeModifier.Operation.MULTIPLY_BASE
+                    AttributeModifier.Operation.ADD_MULTIPLIED_BASE
             ));
         }
     }
 
     private static void clearWillpower(Player player) {
-        Attribute attr = (Attribute) AttributeRegistry.CAST_TIME_REDUCTION.get();
-        if (attr == null) return;
-        removeModifier(player, attr, WILL_MANA_COST_UUID);
+        Holder<Attribute> attrHolder = (Holder<Attribute>) AttributeRegistry.CAST_TIME_REDUCTION.get();
+        if (attrHolder == null) return;
+        removeModifier(player, attrHolder, WILL_MANA_COST_ID);
     }
 
     public static void applyCharisma(Player player, int charisma) {
@@ -156,21 +150,19 @@ public class IronsSpellbooksCompat {
         double bonusMana = charisma * manaPerPoint;
         applyAddModifier(
                 player,
-                (Attribute) AttributeRegistry.MAX_MANA.get(),
-                CHA_MAX_MANA_UUID,
-                "Ascend CHA max mana",
+                (Holder<Attribute>) AttributeRegistry.MAX_MANA.get(),
+                CHA_MAX_MANA_ID,
                 bonusMana
         );
         double supportPerPoint = 0.003d;
         double supportMax = 0.30d;
         double supportBonus = Math.min(charisma * supportPerPoint, supportMax);
-        Attribute supportAttr = (Attribute) AttributeRegistry.HOLY_SPELL_POWER.get();
+        Holder<Attribute> supportAttr = (Holder<Attribute>) AttributeRegistry.HOLY_SPELL_POWER.get();
         if (supportAttr != null && supportBonus > 0.0d) {
             applyMultiplyBaseModifier(
                     player,
                     supportAttr,
-                    CHA_SUPPORT_POWER_UUID,
-                    "Ascend CHA support spell power",
+                    CHA_SUPPORT_POWER_ID,
                     supportBonus
             );
         }
@@ -178,14 +170,13 @@ public class IronsSpellbooksCompat {
         double minionDmgPerPoint = 0.003d;
         double minionHpBonus = Math.min(charisma * minionHpPerPoint, 0.40d);
         double minionDmgBonus = Math.min(charisma * minionDmgPerPoint, 0.30d);
-        Attribute summonHpAttr = null;
-        Attribute summonDmgAttr = (Attribute) AttributeRegistry.SUMMON_DAMAGE.get();
+        Holder<Attribute> summonHpAttr = null;
+        Holder<Attribute> summonDmgAttr = (Holder<Attribute>) AttributeRegistry.SUMMON_DAMAGE.get();
         if (summonHpAttr != null && minionHpBonus > 0.0d) {
             applyMultiplyBaseModifier(
                     player,
                     summonHpAttr,
-                    CHA_SUMMON_HEALTH_UUID,
-                    "Ascend CHA summon max health",
+                    CHA_SUMMON_HEALTH_ID,
                     minionHpBonus
             );
         }
@@ -193,26 +184,25 @@ public class IronsSpellbooksCompat {
             applyMultiplyBaseModifier(
                     player,
                     summonDmgAttr,
-                    CHA_SUMMON_DAMAGE_UUID,
-                    "Ascend CHA summon damage",
+                    CHA_SUMMON_DAMAGE_ID,
                     minionDmgBonus
             );
         }
     }
 
     private static void clearCharisma(Player player) {
-        removeModifier(player, (Attribute) AttributeRegistry.MAX_MANA.get(), CHA_MAX_MANA_UUID);
-        Attribute supportAttr = (Attribute) AttributeRegistry.HOLY_SPELL_POWER.get();
-        Attribute summonHpAttr = null;
-        Attribute summonDmgAttr = (Attribute) AttributeRegistry.SUMMON_DAMAGE.get();
+        removeModifier(player, (Holder<Attribute>) AttributeRegistry.MAX_MANA.get(), CHA_MAX_MANA_ID);
+        Holder<Attribute> supportAttr = (Holder<Attribute>) AttributeRegistry.HOLY_SPELL_POWER.get();
+        Holder<Attribute> summonHpAttr = null;
+        Holder<Attribute> summonDmgAttr = (Holder<Attribute>) AttributeRegistry.SUMMON_DAMAGE.get();
         if (supportAttr != null) {
-            removeModifier(player, supportAttr, CHA_SUPPORT_POWER_UUID);
+            removeModifier(player, supportAttr, CHA_SUPPORT_POWER_ID);
         }
         if (summonHpAttr != null) {
-            removeModifier(player, summonHpAttr, CHA_SUMMON_HEALTH_UUID);
+            removeModifier(player, summonHpAttr, CHA_SUMMON_HEALTH_ID);
         }
         if (summonDmgAttr != null) {
-            removeModifier(player, summonDmgAttr, CHA_SUMMON_DAMAGE_UUID);
+            removeModifier(player, summonDmgAttr, CHA_SUMMON_DAMAGE_ID);
         }
     }
 
@@ -226,9 +216,8 @@ public class IronsSpellbooksCompat {
         double spBonus = Math.min(magicScaling * spPerPoint, spMax);
         applyMultiplyBaseModifier(
                 player,
-                (Attribute) AttributeRegistry.SPELL_POWER.get(),
-                MAG_SPELL_POWER_UUID,
-                "Ascend Magic Scaling spell power",
+                (Holder<Attribute>) AttributeRegistry.SPELL_POWER.get(),
+                MAG_SPELL_POWER_ID,
                 spBonus
         );
         double regenPerPoint = 0.001d;
@@ -236,9 +225,8 @@ public class IronsSpellbooksCompat {
         double regenBonus = Math.min(magicScaling * regenPerPoint, regenMax);
         applyMultiplyBaseModifier(
                 player,
-                (Attribute) AttributeRegistry.MANA_REGEN.get(),
-                MAG_MANA_REGEN_UUID,
-                "Ascend Magic Scaling mana regen",
+                (Holder<Attribute>) AttributeRegistry.MANA_REGEN.get(),
+                MAG_MANA_REGEN_ID,
                 regenBonus
         );
 
@@ -247,52 +235,49 @@ public class IronsSpellbooksCompat {
         double cdrBonus = Math.min(magicScaling * cdrPerPoint, cdrMax);
         applyMultiplyBaseModifier(
                 player,
-                (Attribute) AttributeRegistry.COOLDOWN_REDUCTION.get(),
-                MAG_COOLDOWN_REDUCTION_UUID,
-                "Ascend Magic Scaling cooldown reduction",
+                (Holder<Attribute>) AttributeRegistry.COOLDOWN_REDUCTION.get(),
+                MAG_COOLDOWN_REDUCTION_ID,
                 cdrBonus
         );
     }
 
     private static void clearMagicScaling(Player player) {
-        removeModifier(player, (Attribute) AttributeRegistry.SPELL_POWER.get(), MAG_SPELL_POWER_UUID);
-        removeModifier(player, (Attribute) AttributeRegistry.MANA_REGEN.get(), MAG_MANA_REGEN_UUID);
-        removeModifier(player, (Attribute) AttributeRegistry.COOLDOWN_REDUCTION.get(), MAG_COOLDOWN_REDUCTION_UUID);
+        removeModifier(player, (Holder<Attribute>) AttributeRegistry.SPELL_POWER.get(), MAG_SPELL_POWER_ID);
+        removeModifier(player, (Holder<Attribute>) AttributeRegistry.MANA_REGEN.get(), MAG_MANA_REGEN_ID);
+        removeModifier(player, (Holder<Attribute>) AttributeRegistry.COOLDOWN_REDUCTION.get(), MAG_COOLDOWN_REDUCTION_ID);
     }
 
-    private static void applyAddModifier(Player player, Attribute attribute, UUID id, String name, double value) {
-        if (attribute == null) return;
-        AttributeInstance inst = player.getAttribute(attribute);
+    private static void applyAddModifier(Player player, Holder<Attribute> attributeHolder, ResourceLocation id, double value) {
+        if (attributeHolder == null) return;
+        AttributeInstance inst = player.getAttribute(attributeHolder);
         if (inst == null) return;
         inst.removeModifier(id);
         if (value != 0.0d) {
             inst.addTransientModifier(new AttributeModifier(
                     id,
-                    name,
                     value,
-                    AttributeModifier.Operation.ADDITION
+                    AttributeModifier.Operation.ADD_VALUE
             ));
         }
     }
 
-    private static void applyMultiplyBaseModifier(Player player, Attribute attribute, UUID id, String name, double value) {
-        if (attribute == null) return;
-        AttributeInstance inst = player.getAttribute(attribute);
+    private static void applyMultiplyBaseModifier(Player player, Holder<Attribute> attributeHolder, ResourceLocation id, double value) {
+        if (attributeHolder == null) return;
+        AttributeInstance inst = player.getAttribute(attributeHolder);
         if (inst == null) return;
         inst.removeModifier(id);
         if (value != 0.0d) {
             inst.addTransientModifier(new AttributeModifier(
                     id,
-                    name,
                     value,
-                    AttributeModifier.Operation.MULTIPLY_BASE
+                    AttributeModifier.Operation.ADD_MULTIPLIED_BASE
             ));
         }
     }
 
-    private static void removeModifier(Player player, Attribute attribute, UUID id) {
-        if (attribute == null) return;
-        AttributeInstance inst = player.getAttribute(attribute);
+    private static void removeModifier(Player player, Holder<Attribute> attributeHolder, ResourceLocation id) {
+        if (attributeHolder == null) return;
+        AttributeInstance inst = player.getAttribute(attributeHolder);
         if (inst != null) {
             inst.removeModifier(id);
         }
