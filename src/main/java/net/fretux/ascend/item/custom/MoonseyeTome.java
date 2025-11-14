@@ -1,6 +1,5 @@
 package net.fretux.ascend.item.custom;
 
-import net.fretux.ascend.player.PlayerStats;
 import net.fretux.ascend.player.PlayerStatsProvider;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -18,20 +17,20 @@ public class MoonseyeTome extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack stack = player.getItemInHand(usedHand);
-        PlayerStats stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
+        var stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
         int gained;
         if (level.isClientSide) return InteractionResultHolder.success(stack);
-            if (!stats.hasUsedMoonseye()) {
-                gained = 100;
-                stats.setHasUsedMoonseye(true);
-            } else {
-                gained = 50;
-            }
-            stats.addKnowledge(gained);
-            player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("item.ascend.moonseye_tome.used", gained));
-            player.playSound(SoundEvents.ENCHANTMENT_TABLE_USE, 1.0f, 1.2f);
-            stack.shrink(1);
-            PlayerStatsProvider.sync(player);
+        if (!stats.hasUsedMoonseye()) {
+            gained = 100;
+            stats.setHasUsedMoonseye(true);
+        } else {
+            gained = 50;
+        }
+        stats.addKnowledge(gained);
+        player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("item.ascend.moonseye_tome.used", gained));
+        player.playSound(SoundEvents.ENCHANTMENT_TABLE_USE, 1.0f, 1.2f);
+        stack.shrink(1);
+        PlayerStatsProvider.sync(player);
         return InteractionResultHolder.consume(stack);
     }
 }

@@ -19,6 +19,12 @@ public class ModNetworking {
                 ServerStatsPayload::handleServer
         );
 
+        registrar.playToServer(
+                ServerShrinePayload.TYPE,
+                ServerShrinePayload.CODEC,
+                ServerShrinePayload::handleServer
+        );
+
         registrar.playToClient(
                 ClientStatsPayload.TYPE,
                 ClientStatsPayload.CODEC,

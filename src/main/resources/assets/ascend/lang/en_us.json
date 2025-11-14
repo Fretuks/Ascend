@@ -11,6 +11,7 @@
   "ascend.stats.xp": "Ascend XP: %s / %s",
   "ascend.stats.xp_max": "Ascend XP: MAX",
   "ascend.stats.unspent": "Unspent Points: %s",
+  "ascend.stats.knowledge": "Knowledge: %s",
 
   "ascend.attribute.strength": "Strength",
   "ascend.attribute.strength.desc": "Increases melee damage, knockback and armor penetration.",
