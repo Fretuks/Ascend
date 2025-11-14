@@ -73,8 +73,12 @@ public class StatsScreen extends Screen {
     }
 
     @Override
+    public void renderBackground(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
+        gui.fill(0, 0, this.width, this.height, 0xAA000000);
+    }
+
+    @Override
     public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(gui, mouseX, mouseY,  partialTicks);
         RenderSystem.enableBlend();
         gui.fill(leftPos - 4, topPos - 4, leftPos + WIDTH + 4, topPos + HEIGHT + 4, 0xAA000000);
         RenderSystem.disableBlend();
