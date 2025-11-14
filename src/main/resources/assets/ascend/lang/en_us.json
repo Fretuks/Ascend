@@ -1,4 +1,9 @@
 {
+  "item.ascend.moonseye_tome": "Moonseye Tome",
+  "item.ascend.moonseye_tome.desc": "A forbidden scripture that reveals knowledge of the Depths. Grants 100 Knowledge on first use, 50 afterwards.",
+  "item.ascend.moonseye_tome.used": "You gained %s Knowledge from the Moonseye Tome!",
+  "itemGroup.ascend": "Ascend",
+
   "key.ascend.open_stats": "Open Ascend Stats",
   "key.categories.inventory": "Inventory",
   "ascend.stats.title": "Ascend Stats",
@@ -28,6 +33,7 @@
   "ascend.attribute.magic_scaling": "Magic Scaling",
   "ascend.attribute.magic_scaling.desc": "Increases spell power and mana efficiency for scaling spells.",
 
-  "ascend.attribute.display": "%s: %s"
+  "ascend.attribute.display": "%s: %s",
+  "creativetab.ascend.ascend_tab": "Ascend Tab"
 }
 

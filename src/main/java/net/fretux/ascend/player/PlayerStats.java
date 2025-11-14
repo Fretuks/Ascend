@@ -34,6 +34,7 @@ public class PlayerStats {
             ascendXP -= xpNeeded;
             ascendLevel++;
             unspentPoints += POINTS_PER_LEVEL;
+            knowledge += 1;
         }
         if (ascendLevel >= MAX_ASCEND_LEVEL) {
             int xpNeeded = getXPToNextAscendLevel();
@@ -42,6 +43,7 @@ public class PlayerStats {
             }
         }
     }
+
 
     public int getAscendLevel() {
         return ascendLevel;
@@ -104,6 +106,8 @@ public class PlayerStats {
         tag.putInt("AscendLevel", ascendLevel);
         tag.putInt("AscendXP", ascendXP);
         tag.putInt("UnspentPoints", unspentPoints);
+        tag.putInt("Knowledge", knowledge);
+        tag.putBoolean("HasUsedMoonseye", hasUsedMoonseye);
         CompoundTag attrTag = new CompoundTag();
         for (Map.Entry<String, Integer> entry : attributes.entrySet()) {
             attrTag.putInt(entry.getKey(), entry.getValue());
@@ -127,6 +131,41 @@ public class PlayerStats {
                 attributes.put(key, Math.max(0, Math.min(loaded, MAX_ATTRIBUTE_POINTS)));
             }
         }
+        if (tag.contains("Knowledge")) {
+            knowledge = tag.getInt("Knowledge");
+        }
+        if (tag.contains("HasUsedMoonseye")) {
+            hasUsedMoonseye = tag.getBoolean("HasUsedMoonseye");
+        }
+    }
+
+    private int knowledge = 0;
+    private boolean hasUsedMoonseye = false;
+
+    public int getKnowledge() {
+        return knowledge;
+    }
+
+    public void addKnowledge(int amount) {
+        knowledge = Math.max(0, knowledge + amount);
+    }
+
+    public boolean hasUsedMoonseye(){
+        return hasUsedMoonseye;
+    }
+
+    public void setHasUsedMoonseye(boolean used) {
+        this.hasUsedMoonseye = used;
+    }
+
+    public void refundAllPoints() {
+        int totalSpent = 0;
+        for (String key : attributes.keySet()) {
+            int lvl = attributes.get(key);
+            totalSpent += lvl;
+            attributes.put(key, 0);
+        }
+        unspentPoints += totalSpent;
     }
 
     public static class Serializer implements IAttachmentSerializer<CompoundTag, PlayerStats> {

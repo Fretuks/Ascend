@@ -1,7 +1,10 @@
 package net.fretux.ascend;
 
+import net.fretux.ascend.block.ModBlocks;
 import net.fretux.ascend.command.AscendCommand;
 import net.fretux.ascend.config.AscendConfig;
+import net.fretux.ascend.item.ModCreativeModeTabs;
+import net.fretux.ascend.item.ModItems;
 import net.fretux.ascend.player.PlayerStatsProvider;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -21,6 +24,9 @@ public class AscendMod {
         PlayerStatsProvider.ATTACHMENT_TYPES.register(modEventBus);
         System.out.println("[Ascend] Mod loaded! Side=" + FMLEnvironment.dist);
         modContainer.registerConfig(ModConfig.Type.COMMON, AscendConfig.COMMON_SPEC);
+        ModItems.register(modEventBus);
+        ModBlocks.register(modEventBus);
+        ModCreativeModeTabs.register(modEventBus);
     }
 
     private void onCommonSetup(final FMLCommonSetupEvent event) {

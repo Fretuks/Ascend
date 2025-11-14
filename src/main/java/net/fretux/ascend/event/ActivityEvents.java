@@ -34,6 +34,10 @@ public class ActivityEvents {
         if (event.getSource().getEntity() instanceof Player player && !player.level().isClientSide) {
             var stats = player.getData(PlayerStatsProvider.PLAYER_STATS);
                 stats.addAscendXP((int) (AscendConfig.COMMON.xpPerMobKill.get() * AscendConfig.COMMON.xpMultiplier.get()));
+            LivingEntity mob = event.getEntity();
+            if (mob.getMaxHealth() > 100f || mob.getType().toString().toLowerCase().contains("boss")) {
+                stats.addKnowledge(2);
+            }
                 PlayerStatsProvider.sync(player);
         }
     }
