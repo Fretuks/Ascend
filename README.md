@@ -1,26 +1,55 @@
-# Ascend: SbA (Stats by Actions) — short overview
+# Ascend
 
-**Ascend** turns vanilla Minecraft into a lightweight, persistent RPG: train attributes by doing things in-game, gain Ascend levels, spend points to boost combat, movement, magic and social skills, and watch those choices change how your character performs. 
+**Ascend** is a soulslike RPG progression mod inspired by *Deepwoken*. 
 
-**This Mod is meant to be used alongside Iron's Spells and Spellbooks but does work without it.**
+**The Mod is meant to be used alongside Iron's Spellbooks but can be used without it.**
 
-## What it does (quick)
+---
 
-* Adds an **Ascend level & XP** system (max level **20**, **15 points per level**).
-* Players earn XP from actions: killing mobs, mining certain blocks, taking damage, crafting/smelting, using potions, trading with villagers, using weapons, and periodic checks for risky situations (low health, debuffs, darkness).
-* Spend earned points on 10 attributes (strength, agility, fortitude, intelligence, willpower, charisma, and weapon/magic scaling stats).
-* Client UI: press **V** (configurable keybind) to open a compact stats screen and spend points. Server-authoritative with packet sync.
+## Features
 
-## Key mechanics & examples
+### Core Progression
+- **Ascend Levels** — Gain Ascend XP through combat, crafting, mining, and exploration.  
+- **Skill Points** — Every Ascend Level grants 15 points to invest in attributes.  
+- **Knowledge** — A rare currency earned from leveling up or slaying strong creatures; used for mystical interactions.
 
-* **Strength**: +attack damage, +knockback, and armor-bypass bonus calculated on hit.
-* **Agility**: small movement speed bonus; XP for agile actions (sprinting, climbing, jumping).
-* **Fortitude**: increases max health, knockback resistance, chance to resist/cleanse harmful effects.
-* **Intelligence**: increases mana (and integrates with Iron’s Spellbooks if present), lengthens beneficial potion effects, reduces enchantment costs/effects.
-* **Willpower**: Will be used in later mods -> Does nothing for now.
-* **Charisma**: grants trade discounts by adjusting merchant offers when opening trades.
-* **Scaling stats**: light/medium/heavy weapon scaling and magic scaling multiply damage based on attack speed or magic damage type.
+### Attributes
+Each player has 10 upgradeable stats (max 100 points each):
 
-## Playstyle & design goal
+| Attribute | Effect |
+|------------|---------|
+| **Strength** | Increases melee damage, knockback, and armor penetration. |
+| **Agility** | Improves movement speed, evasion chance, and stealth. |
+| **Fortitude** | Increases maximum health and reduces knockback taken. |
+| **Intelligence** | Boosts mana, spell power, mana regen, and cooldown reduction (with *Iron’s Spells & Spellbooks*). |
+| **Willpower** | Reduces sanity drain and increases stamina/tempo. Reduces spell cast time with Iron's Spells Spells & Spellbooks -> Does   |
+| **Charisma** | Improves villager trades and grants small mana bonuses. |
+| **Light Scaling** | Increases damage with light weapons. |
+| **Medium Scaling** | Increases damage with medium weapons. |
+| **Heavy Scaling** | Increases damage with heavy weapons. |
+| **Magic Scaling** | Enhances spell power and mana efficiency for scaling spells. |
 
-Ascend is built to be unobtrusive and organic: your playstyle trains the corresponding attributes. Want a heavy-hitter who tanks? Smash armor and spend in Strength/Fortitude. Prefer spellcasting? Farm XP and invest in Intelligence and Magic Scaling. It’s about emergent progression. No grindy menus, just meaningful choices.
+### Knowledge System
+- Gain **1 Knowledge** for each Ascend Level.
+- Gain **2 Knowledge** when slaying elite or boss-tier mobs.
+- Spend Knowledge at ancient shrines or with special items to alter your progression.
+
+### Shrine of Remembrance
+- Indestructible world-generated structure appearing rarely. You can interact with it to reset your skillpoints in exchange for Knowledge.
+
+### Iron’s Spells ‘n Spellbooks Compatibility
+If installed:
+- **Intelligence** increases max mana, spell power, mana regen, and cooldown reduction.
+- **Charisma** adds smaller mana bonuses.
+- **Magic Scaling** improves damage and regen for scaling spells.
+
+## Controls
+
+| Action | Default Key | Description |
+|---------|--------------|-------------|
+| **Open Ascend Stats Menu** | `V` | Opens the attribute screen (can be rebound in Controls → Keybinds → Inventory). |
+
+---
+
+## Configuration
+All gameplay values (XP gain, level caps, points per level, etc.) are adjustable in config/ascend-common.toml
