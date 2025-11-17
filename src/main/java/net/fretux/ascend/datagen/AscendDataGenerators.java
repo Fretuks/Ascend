@@ -19,10 +19,9 @@ public class AscendDataGenerators {
     public static void gatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();
         PackOutput output = generator.getPackOutput();
-        ExistingFileHelper helper = event.getExistingFileHelper();
-
-        generator.addProvider(event.includeClient(), new ModBlockStateProvider(output, helper));
-        generator.addProvider(event.includeClient(), new AscendItemModelProvider(output, helper));
+        ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
+        generator.addProvider(event.includeClient(), new ModBlockStateProvider(output, existingFileHelper));
+        generator.addProvider(event.includeClient(), new AscendItemModelProvider(output, existingFileHelper));
         generator.addProvider(event.includeServer(), new ModLootTableProvider(output));
         generator.addProvider(event.includeServer(), new ModWorldGenProvider(output, event.getLookupProvider()));
     }

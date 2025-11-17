@@ -5,6 +5,8 @@ import net.fretux.ascend.config.AscendConfig;
 import net.fretux.ascend.network.PacketHandler;
 import net.fretux.ascend.registry.ModBlocks;
 import net.fretux.ascend.registry.ModItems;
+import net.fretux.ascend.worldgen.ModStructurePieces;
+import net.fretux.ascend.worldgen.ModStructures;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -26,6 +28,8 @@ public class AscendMod {
         net.minecraftforge.fml.ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, AscendConfig.COMMON_SPEC);
         ModItems.register(modBus);
         ModBlocks.register(modBus);
+        ModStructures.STRUCTURE_TYPES.register(modBus);
+        ModStructurePieces.PIECES.register(modBus);
     }
 
     private void onCommonSetup(final FMLCommonSetupEvent event) {
