@@ -8,7 +8,6 @@ import net.fretux.ascend.registry.ModItems;
 import net.fretux.ascend.worldgen.ModStructurePieces;
 import net.fretux.ascend.worldgen.ModStructures;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -24,6 +23,7 @@ public class AscendMod {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(this::onCommonSetup);
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(AscendCommand.class);
         System.out.println("[Ascend] Mod loaded! Side=" + FMLEnvironment.dist);
         net.minecraftforge.fml.ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, AscendConfig.COMMON_SPEC);
         ModItems.register(modBus);
@@ -37,10 +37,5 @@ public class AscendMod {
             PacketHandler.register();
             System.out.println("[Ascend] Registering packets... Side=" + FMLEnvironment.dist);
         });
-    }
-    
-    @SubscribeEvent
-    public static void onRegisterCommands(net.minecraftforge.event.RegisterCommandsEvent event) {
-        AscendCommand.register(event.getDispatcher());
     }
 }
