@@ -13,7 +13,7 @@ import net.minecraft.network.chat.Component;
 public class ShrineScreen extends Screen {
 
     private static final int WIDTH = 260;
-    private static final int HEIGHT = 160;
+    private static final int HEIGHT = 200;
 
     private int leftPos;
     private int topPos;
@@ -74,17 +74,31 @@ public class ShrineScreen extends Screen {
                 addRenderableWidget(leaveButton);
             }
 
-            case 2 -> { // Player picks what to unmake
+            case 2 -> {
+                // Existing Ascend option
                 Button forgetButton = Button.builder(Component.literal("I WISH TO FORGET."), (btn) -> {
                     PacketHandler.INSTANCE.sendToServer(new ServerboundShrineChoicePacket("forget"));
                     Minecraft.getInstance().setScreen(null);
                 }).bounds(leftPos + 20, buttonY, WIDTH - 40, 20).build();
-
+                addRenderableWidget(forgetButton);
+                int y = buttonY + 25;
+                if (net.fretux.ascend.compat.AscendMMCompat.isMindMotionPresent()) {
+                    Button understandButton = Button.builder(Component.literal("I WISH TO UNDERSTAND."), (btn) -> {
+                        PacketHandler.INSTANCE.sendToServer(new ServerboundShrineChoicePacket("understand"));
+                        Minecraft.getInstance().setScreen(null);
+                    }).bounds(leftPos + 20, y, WIDTH - 40, 20).build();
+                    addRenderableWidget(understandButton);
+                    y += 25;
+                    Button restButton = Button.builder(Component.literal("I WISH TO REST."), (btn) -> {
+                        PacketHandler.INSTANCE.sendToServer(new ServerboundShrineChoicePacket("rest"));
+                        Minecraft.getInstance().setScreen(null);
+                    }).bounds(leftPos + 20, y, WIDTH - 40, 20).build();
+                    addRenderableWidget(restButton);
+                    y += 25;
+                }
                 Button leaveButton = Button.builder(Component.literal("LEAVE."), (btn) -> {
                     Minecraft.getInstance().setScreen(null);
-                }).bounds(leftPos + 20, buttonY + 25, WIDTH - 40, 20).build();
-
-                addRenderableWidget(forgetButton);
+                }).bounds(leftPos + 20, y, WIDTH - 40, 20).build();
                 addRenderableWidget(leaveButton);
             }
         }

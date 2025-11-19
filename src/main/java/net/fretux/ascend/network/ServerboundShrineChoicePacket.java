@@ -4,11 +4,8 @@ import net.fretux.ascend.player.PlayerStatsProvider;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.PacketDistributor;
 
 import java.util.function.Supplier;
 
@@ -33,19 +30,63 @@ public class ServerboundShrineChoicePacket {
             if (player == null) return;
 
             player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-                if ("forget".equals(choice)) {
-                    if (stats.getKnowledge() >= 15) {
-                        stats.addKnowledge(-15);
-                        stats.refundAllPoints();
-                        player.sendSystemMessage(Component.literal("FOOLISH... YET HONEST."));
-                    } else {
-                        player.sendSystemMessage(Component.literal("YOUR MIND IS TOO EMPTY TO BE WORTH MY TOUCH."));
-                        player.hurt(player.level().damageSources().magic(), 4.0F);
-                        Vec3 look = player.getLookAngle().normalize().scale(-2.0D);
-                        player.setDeltaMovement(look.x * 5, 0.8, look.z * 5);
-                        player.hurtMarked = true;
+                switch (choice) {
+                    case "forget" -> {
+                        if (stats.getKnowledge() >= 15) {
+                            stats.addKnowledge(-15);
+                            stats.refundAllPoints();
+                            player.sendSystemMessage(Component.literal("YOU ARE A BLANK SLATE. EMPTY. FORGOTTEN."));
+                        } else {
+                            player.sendSystemMessage(Component.literal("YOUR MIND IS TOO EMPTY TO BE WORTH MY TOUCH."));
+                            player.hurt(player.level().damageSources().magic(), 4.0F);
+                            Vec3 look = player.getLookAngle().normalize().scale(-2.0D);
+                            player.setDeltaMovement(look.x * 5, 0.8, look.z * 5);
+                            player.hurtMarked = true;
+                        }
+                        PlayerStatsProvider.sync(player);
                     }
-                    PlayerStatsProvider.sync(player);
+
+                    case "understand" -> {
+                        if (!net.fretux.ascend.compat.AscendMMCompat.isMindMotionPresent())
+                            return;
+
+                        player.getCapability(net.fretux.mindmotion.player.PlayerCapabilityProvider.SANITY).ifPresent(sanity -> {
+
+                            float sanityPercent = sanity.getSanity() / sanity.getMaxSanity();
+
+                            if (sanityPercent >= 0.90f) {
+                                stats.addKnowledge(5);
+                                sanity.setSanity(0);
+                                sanity.setInsanity(0);
+
+                                player.sendSystemMessage(Component.literal("YOUR MIND EXPANDS AS IT BREAKS."));
+                            } else {
+                                player.sendSystemMessage(Component.literal("YOUR MIND IS NOT YET CLEAR ENOUGH."));
+                            }
+                        });
+
+                        PlayerStatsProvider.sync(player);
+                    }
+
+                    case "rest" -> {
+                        if (!net.fretux.ascend.compat.AscendMMCompat.isMindMotionPresent())
+                            return;
+
+                        if (stats.getKnowledge() >= 10) {
+                            stats.addKnowledge(-10);
+
+                            player.getCapability(net.fretux.mindmotion.player.PlayerCapabilityProvider.SANITY).ifPresent(sanity -> {
+                                sanity.setSanity(sanity.getMaxSanity());
+                                sanity.setInsanity(0);
+                            });
+
+                            player.sendSystemMessage(Component.literal("THE SHRINE RESTORES YOUR FRACTURED MIND."));
+                        } else {
+                            player.sendSystemMessage(Component.literal("YOU LACK THE KNOWLEDGE TO REST."));
+                        }
+
+                        PlayerStatsProvider.sync(player);
+                    }
                 }
             });
         });
