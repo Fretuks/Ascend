@@ -7,13 +7,12 @@ import net.fretux.ascend.item.ModCreativeModeTabs;
 import net.fretux.ascend.item.ModItems;
 import net.fretux.ascend.player.PlayerStatsProvider;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 @Mod(AscendMod.MODID)
 public class AscendMod {
@@ -27,16 +26,12 @@ public class AscendMod {
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModCreativeModeTabs.register(modEventBus);
+        NeoForge.EVENT_BUS.register(AscendCommand.class);
     }
 
     private void onCommonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             System.out.println("[Ascend] Registering packets... Side=" + FMLEnvironment.dist);
         });
-    }
-    
-    @SubscribeEvent
-    public static void onRegisterCommands(RegisterCommandsEvent event) {
-        AscendCommand.register(event.getDispatcher());
     }
 }
