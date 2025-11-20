@@ -24,5 +24,7 @@ public class AscendDataGenerators {
         generator.addProvider(event.includeClient(), new AscendItemModelProvider(output, existingFileHelper));
         generator.addProvider(event.includeServer(), new ModLootTableProvider(output));
         generator.addProvider(event.includeServer(), new ModWorldGenProvider(output, event.getLookupProvider()));
+        generator.addProvider(event.includeServer(), new ModBlockTagProvider(output, event.getLookupProvider(), existingFileHelper));
+
     }
 }

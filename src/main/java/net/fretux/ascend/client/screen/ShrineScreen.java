@@ -20,9 +20,17 @@ public class ShrineScreen extends Screen {
 
     private int dialogueStage = 0; // 0 = intro, 1 = offer, 2 = confirm
     private int playerKnowledge = 0;
+    private final boolean essenceMode;
 
+    public ShrineScreen(boolean essenceMode) {
+        super(essenceMode
+                ? Component.literal("Remembrance Essence")
+                : Component.literal("Shrine of Remembrance"));
+        this.essenceMode = essenceMode;
+    }
+    
     public ShrineScreen() {
-        super(Component.literal("Shrine of Remembrance"));
+        this(false);
     }
 
     @Override
@@ -45,6 +53,33 @@ public class ShrineScreen extends Screen {
         this.clearWidgets();
         int buttonY = topPos + 85;
 
+        // ESSENCE MODE — skip all dialogue, go straight to options
+        if (essenceMode) {
+            addRenderableWidget(Button.builder(Component.literal("FORGET"), (btn) -> {
+                PacketHandler.INSTANCE.sendToServer(new ServerboundShrineChoicePacket("forget"));
+                Minecraft.getInstance().setScreen(null);
+            }).bounds(leftPos + 20, buttonY, WIDTH - 40, 20).build());
+
+            int y = buttonY + 25;
+
+            addRenderableWidget(Button.builder(Component.literal("UNDERSTAND"), (btn) -> {
+                PacketHandler.INSTANCE.sendToServer(new ServerboundShrineChoicePacket("understand"));
+                Minecraft.getInstance().setScreen(null);
+            }).bounds(leftPos + 20, y, WIDTH - 40, 20).build());
+            y += 25;
+
+            addRenderableWidget(Button.builder(Component.literal("REST"), (btn) -> {
+                PacketHandler.INSTANCE.sendToServer(new ServerboundShrineChoicePacket("rest"));
+                Minecraft.getInstance().setScreen(null);
+            }).bounds(leftPos + 20, y, WIDTH - 40, 20).build());
+            y += 25;
+
+            addRenderableWidget(Button.builder(Component.literal("LEAVE"), (btn) -> {
+                Minecraft.getInstance().setScreen(null);
+            }).bounds(leftPos + 20, y, WIDTH - 40, 20).build());
+
+            return;
+        }
         switch (dialogueStage) {
             case 0 -> { // Intro
                 Button engageButton = Button.builder(Component.literal("I WISH TO ENGAGE IN A DEAL."), (btn) -> {

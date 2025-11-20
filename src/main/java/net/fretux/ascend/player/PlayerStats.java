@@ -49,12 +49,14 @@ public class PlayerStats {
     public int getAscendXP() {
         return ascendXP;
     }
-    
+
     public int getXPToNextAscendLevel() {
         if (ascendLevel >= MAX_ASCEND_LEVEL) return 0;
-        return 100 * ascendLevel;
+        double base = 100.0;
+        double growth = 1.3;
+        return (int) Math.ceil(base * Math.pow(growth, ascendLevel - 1));
     }
-    
+
     public int getUnspentPoints() {
         return unspentPoints;
     }

@@ -2,6 +2,7 @@ package net.fretux.ascend.registry;
 
 import net.fretux.ascend.AscendMod;
 import net.fretux.ascend.item.MoonseyeTome;
+import net.fretux.ascend.item.RemembranceEssenceItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -24,12 +25,17 @@ public class ModItems {
                     .stacksTo(1)
                     .rarity(Rarity.RARE))
     );
+    public static final RegistryObject<Item> REMEMBRANCE_ESSENCE = ITEMS.register(
+            "remembrance_essence",
+            () -> new RemembranceEssenceItem(new Item.Properties().stacksTo(1))
+    );
     public static final RegistryObject<CreativeModeTab> ASCEND_TAB = TABS.register("ascend_tab",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.ascend"))
                     .icon(() -> new ItemStack(MOONSEYE_TOME.get()))
                     .displayItems((params, output) -> {
                         output.accept(MOONSEYE_TOME.get());
+                        output.accept(REMEMBRANCE_ESSENCE.get());
                     })
                     .build()
     );

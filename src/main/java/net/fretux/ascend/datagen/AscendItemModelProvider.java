@@ -19,6 +19,7 @@ public class AscendItemModelProvider extends ItemModelProvider {
     protected void registerModels() {
         assert ModItems.MOONSEYE_TOME.getId() != null;
         basicItem(ModItems.MOONSEYE_TOME.getId().getPath());
+        basicItem(ModItems.REMEMBRANCE_ESSENCE.getId().getPath());
         withExistingParent(ModBlocks.SHRINE_OF_REMEMBRANCE.getId().getPath(),
                 modLoc("block/" + ModBlocks.SHRINE_OF_REMEMBRANCE.getId().getPath()));
     }

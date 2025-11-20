@@ -21,11 +21,10 @@ public class ModBlocks {
             () -> new ShrineOfRemembranceBlock(
                     BlockBehaviour.Properties.of()
                             .mapColor(MapColor.COLOR_PURPLE)
-                            .strength(-1.0F, 3600000.0F) // unbreakable
-                            .noLootTable()
+                            .strength(50.0F, 1200.0F)
+                            .requiresCorrectToolForDrops()
                             .lightLevel(s -> 6)
                             .noOcclusion()
-                            .requiresCorrectToolForDrops()
             )
     );
 
