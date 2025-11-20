@@ -135,7 +135,7 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    implementation fg.deobf("net.fretux.mindmotion:mindmotion:1.1.0")
+    implementation fg.deobf("net.fretux.mindmotion:mindmotion:1.2.0")
 
     // Iron's Spellbooks API only
     compileOnly fg.deobf("io.redspace.ironsspellbooks:irons_spellbooks:${irons_spells_version}:api")
