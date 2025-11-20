@@ -26,8 +26,7 @@ public class RemembranceEssenceItem extends Item {
         }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }
-
-    // Essence is consumed after the action is performed
+    
     public static void consume(Player player) {
         for (InteractionHand hand : InteractionHand.values()) {
             ItemStack item = player.getItemInHand(hand);

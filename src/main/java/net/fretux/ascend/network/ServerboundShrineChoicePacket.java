@@ -1,6 +1,9 @@
 package net.fretux.ascend.network;
 
+import net.fretux.ascend.compat.AscendMMCompat;
+import net.fretux.ascend.item.RemembranceEssenceItem;
 import net.fretux.ascend.player.PlayerStatsProvider;
+import net.fretux.mindmotion.player.PlayerCapabilityProvider;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -36,6 +39,7 @@ public class ServerboundShrineChoicePacket {
                             stats.addKnowledge(-15);
                             stats.refundAllPoints();
                             player.sendSystemMessage(Component.literal("YOU ARE A BLANK SLATE. EMPTY. FORGOTTEN."));
+                            RemembranceEssenceItem.consume(player);
                         } else {
                             player.sendSystemMessage(Component.literal("YOUR MIND IS TOO EMPTY TO BE WORTH MY TOUCH."));
                             player.hurt(player.level().damageSources().magic(), 4.0F);
@@ -45,46 +49,35 @@ public class ServerboundShrineChoicePacket {
                         }
                         PlayerStatsProvider.sync(player);
                     }
-
                     case "understand" -> {
-                        if (!net.fretux.ascend.compat.AscendMMCompat.isMindMotionPresent())
-                            return;
-
-                        player.getCapability(net.fretux.mindmotion.player.PlayerCapabilityProvider.SANITY).ifPresent(sanity -> {
-
+                        if (!AscendMMCompat.isMindMotionPresent()) return;
+                        player.getCapability(PlayerCapabilityProvider.SANITY).ifPresent(sanity -> {
                             float sanityPercent = sanity.getSanity() / sanity.getMaxSanity();
-
                             if (sanityPercent >= 0.90f) {
                                 stats.addKnowledge(5);
                                 sanity.setSanity(0);
                                 sanity.setInsanity(0);
-
                                 player.sendSystemMessage(Component.literal("YOUR MIND EXPANDS AS IT BREAKS."));
+                                RemembranceEssenceItem.consume(player);
                             } else {
                                 player.sendSystemMessage(Component.literal("YOUR MIND IS NOT YET CLEAR ENOUGH."));
                             }
                         });
-
                         PlayerStatsProvider.sync(player);
                     }
-
                     case "rest" -> {
-                        if (!net.fretux.ascend.compat.AscendMMCompat.isMindMotionPresent())
-                            return;
-
+                        if (!AscendMMCompat.isMindMotionPresent()) return;
                         if (stats.getKnowledge() >= 10) {
                             stats.addKnowledge(-10);
-
-                            player.getCapability(net.fretux.mindmotion.player.PlayerCapabilityProvider.SANITY).ifPresent(sanity -> {
+                            player.getCapability(PlayerCapabilityProvider.SANITY).ifPresent(sanity -> {
                                 sanity.setSanity(sanity.getMaxSanity());
                                 sanity.setInsanity(0);
                             });
-
                             player.sendSystemMessage(Component.literal("THE SHRINE RESTORES YOUR FRACTURED MIND."));
+                            RemembranceEssenceItem.consume(player);
                         } else {
                             player.sendSystemMessage(Component.literal("YOU LACK THE KNOWLEDGE TO REST."));
                         }
-
                         PlayerStatsProvider.sync(player);
                     }
                 }

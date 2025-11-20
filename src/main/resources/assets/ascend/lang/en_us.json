@@ -32,6 +32,7 @@
   "item.ascend.moonseye_tome.used": "You gained %s Knowledge from the Moonseye Tome!",
   "itemGroup.ascend": "Ascend",
   "ascend.attribute.display": "%s: %s",
-  "ascend.stats.knowledge": "Knowledge: %s"
+  "ascend.stats.knowledge": "Knowledge: %s",
+  "item.ascend.remembrance_essence": "Remembrance Essence"
 }
 
