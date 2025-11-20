@@ -209,8 +209,8 @@ public class IronsSpellbooksCompat {
                 "Ascend Magic Scaling spell power",
                 spBonus
         );
-        double cdrPerPoint = 0.0012d;
-        double cdrMax = 0.18d;
+        double cdrPerPoint = 0.0015d;
+        double cdrMax = 0.15d;
         double cdrBonus = Math.min(magicScaling * cdrPerPoint, cdrMax);
         applyMultiplyBaseModifier(
                 player,
