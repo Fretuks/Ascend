@@ -71,19 +71,10 @@ public class IronsSpellbooksCompat {
                 player,
                 AttributeRegistry.MAX_MANA,
                 INT_MAX_MANA_ID,
-                intelligence * 2.0d
+                intelligence * 3.0d
         );
-        double spellPowerPerPoint = 0.004d;
-        double spellPowerMax = 0.40d;
-        double spellPowerBonus = Math.min(intelligence * spellPowerPerPoint, spellPowerMax);
-        applyMultiplyBaseModifier(
-                player,
-                AttributeRegistry.SPELL_POWER,
-                INT_SPELL_POWER_ID,
-                spellPowerBonus
-        );
-        double regenPerPoint = 0.002d;
-        double regenMax = 0.25d;
+        double regenPerPoint = 0.004d;
+        double regenMax = 0.40d;
         double regenBonus = Math.min(intelligence * regenPerPoint, regenMax);
         applyMultiplyBaseModifier(
                 player,
@@ -91,22 +82,11 @@ public class IronsSpellbooksCompat {
                 INT_MANA_REGEN_ID,
                 regenBonus
         );
-        double cdrPerPoint = 0.0015d;
-        double cdrMax = 0.20d;
-        double cdrBonus = Math.min(intelligence * cdrPerPoint, cdrMax);
-        applyMultiplyBaseModifier(
-                player,
-                AttributeRegistry.COOLDOWN_REDUCTION,
-                INT_COOLDOWN_REDUCTION_ID,
-                cdrBonus
-        );
     }
 
     private static void clearIntelligence(Player player) {
         removeModifier(player, AttributeRegistry.MAX_MANA, INT_MAX_MANA_ID);
-        removeModifier(player, AttributeRegistry.SPELL_POWER, INT_SPELL_POWER_ID);
         removeModifier(player, AttributeRegistry.MANA_REGEN, INT_MANA_REGEN_ID);
-        removeModifier(player, AttributeRegistry.COOLDOWN_REDUCTION, INT_COOLDOWN_REDUCTION_ID);
     }
 
     public static void applyWillpowerCastEfficiency(Player player, int willpower) {
@@ -146,7 +126,7 @@ public class IronsSpellbooksCompat {
         if (charisma <= 0) {
             return;
         }
-        double manaPerPoint = 0.5d;
+        double manaPerPoint = 1.5d;
         double bonusMana = charisma * manaPerPoint;
         applyAddModifier(
                 player,
@@ -211,8 +191,8 @@ public class IronsSpellbooksCompat {
             clearMagicScaling(player);
             return;
         }
-        double spPerPoint = 0.006d;
-        double spMax = 0.60d;
+        double spPerPoint = 0.0075d;
+        double spMax = 0.75d;
         double spBonus = Math.min(magicScaling * spPerPoint, spMax);
         applyMultiplyBaseModifier(
                 player,
@@ -220,18 +200,9 @@ public class IronsSpellbooksCompat {
                 MAG_SPELL_POWER_ID,
                 spBonus
         );
-        double regenPerPoint = 0.001d;
-        double regenMax = 0.15d;
-        double regenBonus = Math.min(magicScaling * regenPerPoint, regenMax);
-        applyMultiplyBaseModifier(
-                player,
-                AttributeRegistry.MANA_REGEN,
-                MAG_MANA_REGEN_ID,
-                regenBonus
-        );
 
-        double cdrPerPoint = 0.001d;
-        double cdrMax = 0.10d;
+        double cdrPerPoint = 0.0012d;
+        double cdrMax = 0.18d;
         double cdrBonus = Math.min(magicScaling * cdrPerPoint, cdrMax);
         applyMultiplyBaseModifier(
                 player,
@@ -243,7 +214,6 @@ public class IronsSpellbooksCompat {
 
     private static void clearMagicScaling(Player player) {
         removeModifier(player, AttributeRegistry.SPELL_POWER, MAG_SPELL_POWER_ID);
-        removeModifier(player, AttributeRegistry.MANA_REGEN, MAG_MANA_REGEN_ID);
         removeModifier(player, AttributeRegistry.COOLDOWN_REDUCTION, MAG_COOLDOWN_REDUCTION_ID);
     }
 

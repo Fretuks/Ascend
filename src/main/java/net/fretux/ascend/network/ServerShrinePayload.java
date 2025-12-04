@@ -1,6 +1,7 @@
 package net.fretux.ascend.network;
 
 import net.fretux.ascend.AscendMod;
+import net.fretux.ascend.item.custom.RemembranceEssenceItem;
 import net.fretux.ascend.player.PlayerStatsProvider;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -41,6 +42,7 @@ public record ServerShrinePayload(String choice) implements CustomPacketPayload 
                         stats.addKnowledge(-15);
                         stats.refundAllPoints();
                         player.sendSystemMessage(Component.literal("FOOLISH... YET HONEST."));
+                        RemembranceEssenceItem.consume(player);
                     } else {
                         player.sendSystemMessage(Component.literal("YOUR MIND IS TOO EMPTY TO BE WORTH MY TOUCH."));
                         player.hurt(player.level().damageSources().magic(), 4.0F);
@@ -49,8 +51,39 @@ public record ServerShrinePayload(String choice) implements CustomPacketPayload 
                         player.hurtMarked = true;
                     }
                     PlayerStatsProvider.sync(player);
+                } else if ("understand".equals(payload.choice)) {
+                    /*
+                    if (!AscendMMCompat.isMindMotionPresent()) return;
+                    var sanity = player.getData(PlayerCapabilityProvider.SANITY);
+                        float sanityPercent = sanity.getSanity() / sanity.getMaxSanity();
+                        if (sanityPercent >= 0.90f) {
+                            stats.addKnowledge(5);
+                            sanity.setSanity(0);
+                            sanity.setInsanity(0);
+                            player.sendSystemMessage(Component.literal("YOUR MIND EXPANDS AS IT BREAKS."));
+                            RemembranceEssenceItem.consume(player);
+                        } else {
+                            player.sendSystemMessage(Component.literal("YOUR MIND IS NOT YET CLEAR ENOUGH."));
+                        }
+                    PlayerStatsProvider.sync(player);
+                        */
+                } else if ("reset".equals(payload.choice)) {
+                    /*
+                    if (!AscendMMCompat.isMindMotionPresent()) return;
+                    var sanity = player.getData(PlayerCapabilityProvider.SANITY);
+                    if (stats.getKnowledge() >= 10) {
+                        stats.addKnowledge(-10);
+                        sanity.setSanity(sanity.getMaxSanity());
+                        sanity.setInsanity(0);
+                        player.sendSystemMessage(Component.literal("THE SHRINE RESTORES YOUR FRACTURED MIND."));
+                        RemembranceEssenceItem.consume(player);
+                    } else {
+                        player.sendSystemMessage(Component.literal("YOU LACK THE KNOWLEDGE TO REST."));
+                    }
+                    PlayerStatsProvider.sync(player);
+                    */
                 }
-            });
+        });
     }
     @Override
     public Type<? extends CustomPacketPayload> type() {

@@ -20,11 +20,10 @@ public class ModBlocks {
 
     public static final DeferredBlock<Block> SHRINE_OF_REMEMBRANCE = registerBlock("shrine_of_remembrance",
             () -> new ShrineOfRemembranceBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_PURPLE)
-                    .strength(-1.0F, 3600000.0F)
-                    .noLootTable()
+                    .strength(50.0F, 1200.0F)
+                    .requiresCorrectToolForDrops()
                     .lightLevel(s -> 6)
                     .noOcclusion()
-                    .requiresCorrectToolForDrops()
             )
     );
 

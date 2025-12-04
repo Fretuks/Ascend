@@ -21,9 +21,15 @@ public class ShrineScreen extends Screen {
 
     private int dialogueStage = 0; // 0 = intro, 1 = offer, 2 = confirm
     private int playerKnowledge = 0;
+    private final boolean essenceMode;
+
+    public ShrineScreen(boolean essenceMode) {
+        super(essenceMode ? Component.literal("Remembrance Essence") : Component.literal("Shrine of Remembrance"));
+        this.essenceMode = essenceMode;
+    }
 
     public ShrineScreen() {
-        super(Component.literal("Shrine of Remembrance"));
+        this(false);
     }
 
     @Override
@@ -34,8 +40,8 @@ public class ShrineScreen extends Screen {
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.player != null) {
-            var stats =  mc.player.getData(PlayerStatsProvider.PLAYER_STATS);
-                playerKnowledge = stats.getKnowledge();
+            var stats = mc.player.getData(PlayerStatsProvider.PLAYER_STATS);
+            playerKnowledge = stats.getKnowledge();
         }
 
         updateButtons();
@@ -44,6 +50,33 @@ public class ShrineScreen extends Screen {
     private void updateButtons() {
         this.clearWidgets();
         int buttonY = topPos + 85;
+        if (essenceMode) {
+            addRenderableWidget(Button.builder(Component.literal("FORGET"), (btn) -> {
+                PacketDistributor.sendToServer(new ServerShrinePayload("forget"));
+                Minecraft.getInstance().setScreen(null);
+            }).bounds(leftPos + 20, buttonY, WIDTH - 40, 20).build());
+
+            int y = buttonY + 25;
+
+            addRenderableWidget(Button.builder(Component.literal("UNDERSTAND"), (btn) -> {
+                PacketDistributor.sendToServer(new ServerShrinePayload("understand"));
+                Minecraft.getInstance().setScreen(null);
+            }).bounds(leftPos + 20, y, WIDTH - 40, 20).build());
+
+            y += 25;
+
+            addRenderableWidget(Button.builder(Component.literal("REST"), (btn) -> {
+                PacketDistributor.sendToServer(new ServerShrinePayload("rest"));
+                Minecraft.getInstance().setScreen(null);
+            }).bounds(leftPos + 20, y, WIDTH - 40, 20).build());
+
+            y += 25;
+
+            addRenderableWidget(Button.builder(Component.literal("LEAVE"), (btn) -> {
+                Minecraft.getInstance().setScreen(null);
+            }).bounds(leftPos + 20, y, WIDTH - 40, 20).build());
+            return;
+        }
 
         switch (dialogueStage) {
             case 0 -> { // Intro
@@ -76,7 +109,7 @@ public class ShrineScreen extends Screen {
 
             case 2 -> { // Player picks what to unmake
                 Button forgetButton = Button.builder(Component.literal("I WISH TO FORGET."), (btn) -> {
-                   PacketDistributor.sendToServer(new ServerShrinePayload("forget"));
+                    PacketDistributor.sendToServer(new ServerShrinePayload("forget"));
                     Minecraft.getInstance().setScreen(null);
                 }).bounds(leftPos + 20, buttonY, WIDTH - 40, 20).build();
 
@@ -97,7 +130,7 @@ public class ShrineScreen extends Screen {
 
     @Override
     public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(gui, mouseX, mouseY,partialTicks);
+        this.renderBackground(gui, mouseX, mouseY, partialTicks);
         RenderSystem.enableBlend();
         gui.fill(leftPos - 6, topPos - 6, leftPos + WIDTH + 6, topPos + HEIGHT + 6, 0xCC000000);
         RenderSystem.disableBlend();

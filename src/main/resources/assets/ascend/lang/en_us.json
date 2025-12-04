@@ -1,5 +1,6 @@
 {
   "item.ascend.moonseye_tome": "Moonseye Tome",
+  "item.ascend.remembrance_essence": "Remembrance Essence",
   "item.ascend.moonseye_tome.desc": "A forbidden scripture that reveals knowledge of the Depths. Grants 100 Knowledge on first use, 50 afterwards.",
   "item.ascend.moonseye_tome.used": "You gained %s Knowledge from the Moonseye Tome!",
   "itemGroup.ascend": "Ascend",
@@ -20,7 +21,7 @@
   "ascend.attribute.fortitude": "Fortitude",
   "ascend.attribute.fortitude.desc": "Increases max health and knockback resistance.",
   "ascend.attribute.intelligence": "Intelligence",
-  "ascend.attribute.intelligence.desc": "Boosts mana, spell power, mana regen & cooldown reduction (with Iron's Spellbooks).",
+  "ascend.attribute.intelligence.desc": "Increases max mana and mana regeneration. Also lowers enchantment cost and buffs potions.",
   "ascend.attribute.willpower": "Willpower",
   "ascend.attribute.willpower.desc": "Reduces sanity drain and improves stamina/tempo.",
   "ascend.attribute.charisma": "Charisma",
@@ -32,7 +33,7 @@
   "ascend.attribute.heavy_scaling": "Heavy Scaling",
   "ascend.attribute.heavy_scaling.desc": "Improves heavy weapon performance.",
   "ascend.attribute.magic_scaling": "Magic Scaling",
-  "ascend.attribute.magic_scaling.desc": "Increases spell power and mana efficiency for scaling spells.",
+  "ascend.attribute.magic_scaling.desc": "Increases spell power, spell damage, and spell cooldown reduction.",
 
   "ascend.attribute.display": "%s: %s",
   "creativetab.ascend.ascend_tab": "Ascend Tab"
