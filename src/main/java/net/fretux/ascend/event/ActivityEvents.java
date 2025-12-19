@@ -3,6 +3,7 @@ package net.fretux.ascend.event;
 import net.fretux.ascend.AscendMod;
 import net.fretux.ascend.config.AscendConfig;
 import net.fretux.ascend.player.PlayerStatsProvider;
+import net.fretux.ascend.player.StatEffects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -216,17 +217,24 @@ public class ActivityEvents {
     public static void onPlayerDealsDamage(LivingDamageEvent event) {
         if (!(event.getSource().getEntity() instanceof Player player)) return;
         if (player.level().isClientSide) return;
-        LivingEntity target = event.getEntity();
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-            int strength = stats.getAttributeLevel("strength");
-            if (strength <= 0) return;
-            float bypassFraction = Math.min(strength * 0.001f, 0.30f);
-            int armor = target.getArmorValue();
-            if (armor <= 0 || bypassFraction <= 0f) return;
-            float baseDamage = event.getAmount();
-            float armorFactor = (float) armor / (armor + 100.0f);
-            float bonus = baseDamage * armorFactor * bypassFraction;
-            event.setAmount(baseDamage + bonus);
+            float damage = event.getAmount();
+            var stack = player.getMainHandItem();
+            if (!stack.isEmpty()) {
+                double multiplier = 1.0d;
+                if (stack.getItem() instanceof net.minecraft.world.item.AxeItem) {
+                    int heavy = stats.getAttributeLevel("heavy_scaling");
+                    multiplier = StatEffects.getHeavyWeaponScalingMultiplier(heavy);
+                } else if (stack.getItem() instanceof net.minecraft.world.item.SwordItem) {
+                    int medium = stats.getAttributeLevel("medium_scaling");
+                    multiplier = StatEffects.getWeaponScalingMultiplier(medium);
+                } else {
+                    int light = stats.getAttributeLevel("light_scaling");
+                    multiplier = StatEffects.getLightWeaponScalingMultiplier(light);
+                }
+                damage *= multiplier;
+            }
+            event.setAmount(damage);
         });
     }
 

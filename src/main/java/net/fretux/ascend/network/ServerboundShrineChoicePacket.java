@@ -38,6 +38,7 @@ public class ServerboundShrineChoicePacket {
                         if (stats.getKnowledge() >= 15) {
                             stats.addKnowledge(-15);
                             stats.refundAllPoints();
+                            net.fretux.ascend.player.StatEffects.applyAll(player);
                             player.sendSystemMessage(Component.literal("YOU ARE A BLANK SLATE. EMPTY. FORGOTTEN."));
                             RemembranceEssenceItem.consume(player);
                         } else {
