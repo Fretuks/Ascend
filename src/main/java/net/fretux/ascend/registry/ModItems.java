@@ -13,6 +13,8 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import net.fretux.ascend.registry.ModBlocks;
+import net.minecraft.world.item.BlockItem;
 
 public class ModItems {
     public static final DeferredRegister<Item> ITEMS =
@@ -29,6 +31,15 @@ public class ModItems {
             "remembrance_essence",
             () -> new RemembranceEssenceItem(new Item.Properties().stacksTo(1))
     );
+
+    public static final RegistryObject<Item> SHRINE_OF_REMEMBRANCE_ITEM = ITEMS.register(
+            "shrine_of_remembrance",
+            () -> new BlockItem(
+                    ModBlocks.SHRINE_OF_REMEMBRANCE.get(),
+                    new Item.Properties().stacksTo(1)
+            )
+    );
+
     public static final RegistryObject<CreativeModeTab> ASCEND_TAB = TABS.register("ascend_tab",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.ascend"))
@@ -36,6 +47,7 @@ public class ModItems {
                     .displayItems((params, output) -> {
                         output.accept(MOONSEYE_TOME.get());
                         output.accept(REMEMBRANCE_ESSENCE.get());
+                        output.accept(SHRINE_OF_REMEMBRANCE_ITEM.get());
                     })
                     .build()
     );

@@ -33,6 +33,7 @@
   "itemGroup.ascend": "Ascend",
   "ascend.attribute.display": "%s: %s",
   "ascend.stats.knowledge": "Knowledge: %s",
-  "item.ascend.remembrance_essence": "Remembrance Essence"
+  "item.ascend.remembrance_essence": "Remembrance Essence",
+  "block.ascend.shrine_of_remembrance": "Shrine of Remembrance"
 }
 
