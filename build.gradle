@@ -139,7 +139,6 @@ dependencies {
 
     // Iron's Spellbooks API only
     compileOnly fg.deobf("io.redspace.ironsspellbooks:irons_spellbooks:${irons_spells_version}:api")
-    implementation fg.deobf("io.redspace.ironsspellbooks:irons_spellbooks:${irons_spells_version}")
     
     // GECKOLIB — deobfuscated, full mod
     implementation fg.deobf("software.bernie.geckolib:geckolib-forge-${geckolib_version}")
