@@ -9,6 +9,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LightLayer;
@@ -23,6 +24,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraft.world.entity.LivingEntity;
+
+import java.util.Objects;
 
 @Mod.EventBusSubscriber(modid = AscendMod.MODID)
 public class ActivityEvents {
@@ -74,7 +77,6 @@ public class ActivityEvents {
     public static void onPlayerTickFortitude(TickEvent.PlayerTickEvent event) {
         Player player = event.player;
         if (player.level().isClientSide || event.phase != TickEvent.Phase.END) return;
-
         fortitudeTickCounter++;
         if (fortitudeTickCounter % 100 == 0) {
             player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
@@ -151,7 +153,7 @@ public class ActivityEvents {
 
     @SubscribeEvent
     public static void onVillagerTrade(PlayerInteractEvent.EntityInteract event) {
-        if (!(event.getTarget() instanceof Villager villager)) return;
+        if (!(event.getTarget() instanceof Villager)) return;
         Player player = event.getEntity();
         if (player.level().isClientSide) return;
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
@@ -168,9 +170,9 @@ public class ActivityEvents {
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
             var heldItem = player.getMainHandItem();
             if (heldItem.isEmpty()) return;
-            double attackSpeed = player.getAttribute(
-                    net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED
-            ).getBaseValue();
+            double attackSpeed = Objects.requireNonNull(player.getAttribute(
+                    Attributes.ATTACK_SPEED
+            )).getBaseValue();
             stats.addAscendXP(3);
             PlayerStatsProvider.sync(player);
         });
@@ -232,7 +234,7 @@ public class ActivityEvents {
                     int light = stats.getAttributeLevel("light_scaling");
                     multiplier = StatEffects.getLightWeaponScalingMultiplier(light);
                 }
-                damage *= multiplier;
+                damage *= (float) multiplier;
             }
             event.setAmount(damage);
         });
