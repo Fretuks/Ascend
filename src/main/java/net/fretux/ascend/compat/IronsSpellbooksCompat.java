@@ -56,211 +56,216 @@ public class IronsSpellbooksCompat {
             int magicScaling = stats.getAttributeLevel("magic_scaling");
             int willpower = stats.getAttributeLevel("willpower");
 
-            applyIntelligence(player, intelligence);
-            applyCharisma(player, charisma);
-            applyMagicScaling(player, magicScaling);
-            applyWillpowerCastEfficiency(player, willpower);
+            Loaded.applyIntelligence(player, intelligence);
+            Loaded.applyCharisma(player, charisma);
+            Loaded.applyMagicScaling(player, magicScaling);
+            Loaded.applyWillpowerCastEfficiency(player, willpower);
         });
     }
 
-    public static void applyIntelligence(Player player, int intelligence) {
-        if (intelligence <= 0) {
-            clearIntelligence(player);
-            return;
+    private static final class Loaded {
+        private Loaded() {
         }
-        applyAddModifier(
-                player,
-                (Attribute) AttributeRegistry.MAX_MANA.get(),
-                INT_MAX_MANA_UUID,
-                "Ascend INT max mana",
-                intelligence * 3.0d
-        );
-        double regenPerPoint = 0.004d;
-        double regenMax = 0.40d;
-        double regenBonus = Math.min(intelligence * regenPerPoint, regenMax);
-        applyMultiplyBaseModifier(
-                player,
-                (Attribute) AttributeRegistry.MANA_REGEN.get(),
-                INT_MANA_REGEN_UUID,
-                "Ascend INT mana regen",
-                regenBonus
-        );
-    }
 
-    private static void clearIntelligence(Player player) {
-        removeModifier(player, (Attribute) AttributeRegistry.MAX_MANA.get(), INT_MAX_MANA_UUID);
-        removeModifier(player, (Attribute) AttributeRegistry.MANA_REGEN.get(), INT_MANA_REGEN_UUID);
-    }
-
-    public static void applyWillpowerCastEfficiency(Player player, int willpower) {
-        clearWillpower(player);
-        if (willpower <= 0) {
-            return;
-        }
-        double perPoint = 0.0025d;
-        double max = 0.25d;
-        double reduction = Math.min(willpower * perPoint, max);
-        Attribute attr = (Attribute) AttributeRegistry.CAST_TIME_REDUCTION.get();
-        if (attr == null) {
-            return;
-        }
-        AttributeInstance inst = player.getAttribute(attr);
-        if (inst == null) {
-            return;
-        }
-        inst.removeModifier(WILL_MANA_COST_UUID);
-        if (reduction > 0.0d) {
-            inst.addTransientModifier(new AttributeModifier(
-                    WILL_MANA_COST_UUID,
-                    "Ascend WILL casting time reduction",
-                    -reduction,
-                    AttributeModifier.Operation.MULTIPLY_BASE
-            ));
-        }
-    }
-
-    private static void clearWillpower(Player player) {
-        Attribute attr = (Attribute) AttributeRegistry.CAST_TIME_REDUCTION.get();
-        if (attr == null) return;
-        removeModifier(player, attr, WILL_MANA_COST_UUID);
-    }
-
-    public static void applyCharisma(Player player, int charisma) {
-        clearCharisma(player);
-        if (charisma <= 0) {
-            return;
-        }
-        double manaPerPoint = 1.5d;
-        double bonusMana = charisma * manaPerPoint;
-        applyAddModifier(
-                player,
-                (Attribute) AttributeRegistry.MAX_MANA.get(),
-                CHA_MAX_MANA_UUID,
-                "Ascend CHA max mana",
-                bonusMana
-        );
-        double supportPerPoint = 0.003d;
-        double supportMax = 0.30d;
-        double supportBonus = Math.min(charisma * supportPerPoint, supportMax);
-        Attribute supportAttr = (Attribute) AttributeRegistry.HOLY_SPELL_POWER.get();
-        if (supportAttr != null && supportBonus > 0.0d) {
+        private static void applyIntelligence(Player player, int intelligence) {
+            if (intelligence <= 0) {
+                clearIntelligence(player);
+                return;
+            }
+            applyAddModifier(
+                    player,
+                    (Attribute) AttributeRegistry.MAX_MANA.get(),
+                    INT_MAX_MANA_UUID,
+                    "Ascend INT max mana",
+                    intelligence * 3.0d
+            );
+            double regenPerPoint = 0.004d;
+            double regenMax = 0.40d;
+            double regenBonus = Math.min(intelligence * regenPerPoint, regenMax);
             applyMultiplyBaseModifier(
                     player,
-                    supportAttr,
-                    CHA_SUPPORT_POWER_UUID,
-                    "Ascend CHA support spell power",
-                    supportBonus
+                    (Attribute) AttributeRegistry.MANA_REGEN.get(),
+                    INT_MANA_REGEN_UUID,
+                    "Ascend INT mana regen",
+                    regenBonus
             );
         }
-        double minionHpPerPoint = 0.004d;
-        double minionDmgPerPoint = 0.003d;
-        double minionHpBonus = Math.min(charisma * minionHpPerPoint, 0.40d);
-        double minionDmgBonus = Math.min(charisma * minionDmgPerPoint, 0.30d);
-        Attribute summonHpAttr = null;
-        Attribute summonDmgAttr = (Attribute) AttributeRegistry.SUMMON_DAMAGE.get();
-        if (summonHpAttr != null && minionHpBonus > 0.0d) {
+
+        private static void clearIntelligence(Player player) {
+            removeModifier(player, (Attribute) AttributeRegistry.MAX_MANA.get(), INT_MAX_MANA_UUID);
+            removeModifier(player, (Attribute) AttributeRegistry.MANA_REGEN.get(), INT_MANA_REGEN_UUID);
+        }
+
+        private static void applyWillpowerCastEfficiency(Player player, int willpower) {
+            clearWillpower(player);
+            if (willpower <= 0) {
+                return;
+            }
+            double perPoint = 0.0025d;
+            double max = 0.25d;
+            double reduction = Math.min(willpower * perPoint, max);
+            Attribute attr = (Attribute) AttributeRegistry.CAST_TIME_REDUCTION.get();
+            if (attr == null) {
+                return;
+            }
+            AttributeInstance inst = player.getAttribute(attr);
+            if (inst == null) {
+                return;
+            }
+            inst.removeModifier(WILL_MANA_COST_UUID);
+            if (reduction > 0.0d) {
+                inst.addTransientModifier(new AttributeModifier(
+                        WILL_MANA_COST_UUID,
+                        "Ascend WILL casting time reduction",
+                        -reduction,
+                        AttributeModifier.Operation.MULTIPLY_BASE
+                ));
+            }
+        }
+
+        private static void clearWillpower(Player player) {
+            Attribute attr = (Attribute) AttributeRegistry.CAST_TIME_REDUCTION.get();
+            if (attr == null) return;
+            removeModifier(player, attr, WILL_MANA_COST_UUID);
+        }
+
+        private static void applyCharisma(Player player, int charisma) {
+            clearCharisma(player);
+            if (charisma <= 0) {
+                return;
+            }
+            double manaPerPoint = 1.5d;
+            double bonusMana = charisma * manaPerPoint;
+            applyAddModifier(
+                    player,
+                    (Attribute) AttributeRegistry.MAX_MANA.get(),
+                    CHA_MAX_MANA_UUID,
+                    "Ascend CHA max mana",
+                    bonusMana
+            );
+            double supportPerPoint = 0.003d;
+            double supportMax = 0.30d;
+            double supportBonus = Math.min(charisma * supportPerPoint, supportMax);
+            Attribute supportAttr = (Attribute) AttributeRegistry.HOLY_SPELL_POWER.get();
+            if (supportAttr != null && supportBonus > 0.0d) {
+                applyMultiplyBaseModifier(
+                        player,
+                        supportAttr,
+                        CHA_SUPPORT_POWER_UUID,
+                        "Ascend CHA support spell power",
+                        supportBonus
+                );
+            }
+            double minionHpPerPoint = 0.004d;
+            double minionDmgPerPoint = 0.003d;
+            double minionHpBonus = Math.min(charisma * minionHpPerPoint, 0.40d);
+            double minionDmgBonus = Math.min(charisma * minionDmgPerPoint, 0.30d);
+            Attribute summonHpAttr = null;
+            Attribute summonDmgAttr = (Attribute) AttributeRegistry.SUMMON_DAMAGE.get();
+            if (summonHpAttr != null && minionHpBonus > 0.0d) {
+                applyMultiplyBaseModifier(
+                        player,
+                        summonHpAttr,
+                        CHA_SUMMON_HEALTH_UUID,
+                        "Ascend CHA summon max health",
+                        minionHpBonus
+                );
+            }
+            if (summonDmgAttr != null && minionDmgBonus > 0.0d) {
+                applyMultiplyBaseModifier(
+                        player,
+                        summonDmgAttr,
+                        CHA_SUMMON_DAMAGE_UUID,
+                        "Ascend CHA summon damage",
+                        minionDmgBonus
+                );
+            }
+        }
+
+        private static void clearCharisma(Player player) {
+            removeModifier(player, (Attribute) AttributeRegistry.MAX_MANA.get(), CHA_MAX_MANA_UUID);
+            Attribute supportAttr = (Attribute) AttributeRegistry.HOLY_SPELL_POWER.get();
+            Attribute summonHpAttr = null;
+            Attribute summonDmgAttr = (Attribute) AttributeRegistry.SUMMON_DAMAGE.get();
+            if (supportAttr != null) {
+                removeModifier(player, supportAttr, CHA_SUPPORT_POWER_UUID);
+            }
+            if (summonHpAttr != null) {
+                removeModifier(player, summonHpAttr, CHA_SUMMON_HEALTH_UUID);
+            }
+            if (summonDmgAttr != null) {
+                removeModifier(player, summonDmgAttr, CHA_SUMMON_DAMAGE_UUID);
+            }
+        }
+
+        private static void applyMagicScaling(Player player, int magicScaling) {
+            if (magicScaling <= 0) {
+                clearMagicScaling(player);
+                return;
+            }
+            double spPerPoint = 0.0075d;
+            double spMax = 0.75d;
+            double spBonus = Math.min(magicScaling * spPerPoint, spMax);
             applyMultiplyBaseModifier(
                     player,
-                    summonHpAttr,
-                    CHA_SUMMON_HEALTH_UUID,
-                    "Ascend CHA summon max health",
-                    minionHpBonus
+                    (Attribute) AttributeRegistry.SPELL_POWER.get(),
+                    MAG_SPELL_POWER_UUID,
+                    "Ascend Magic Scaling spell power",
+                    spBonus
             );
-        }
-        if (summonDmgAttr != null && minionDmgBonus > 0.0d) {
+            double cdrPerPoint = 0.0015d;
+            double cdrMax = 0.15d;
+            double cdrBonus = Math.min(magicScaling * cdrPerPoint, cdrMax);
             applyMultiplyBaseModifier(
                     player,
-                    summonDmgAttr,
-                    CHA_SUMMON_DAMAGE_UUID,
-                    "Ascend CHA summon damage",
-                    minionDmgBonus
+                    (Attribute) AttributeRegistry.COOLDOWN_REDUCTION.get(),
+                    MAG_COOLDOWN_REDUCTION_UUID,
+                    "Ascend Magic Scaling cooldown reduction",
+                    cdrBonus
             );
         }
-    }
 
-    private static void clearCharisma(Player player) {
-        removeModifier(player, (Attribute) AttributeRegistry.MAX_MANA.get(), CHA_MAX_MANA_UUID);
-        Attribute supportAttr = (Attribute) AttributeRegistry.HOLY_SPELL_POWER.get();
-        Attribute summonHpAttr = null;
-        Attribute summonDmgAttr = (Attribute) AttributeRegistry.SUMMON_DAMAGE.get();
-        if (supportAttr != null) {
-            removeModifier(player, supportAttr, CHA_SUPPORT_POWER_UUID);
+        private static void clearMagicScaling(Player player) {
+            removeModifier(player, (Attribute) AttributeRegistry.SPELL_POWER.get(), MAG_SPELL_POWER_UUID);
+            removeModifier(player, (Attribute) AttributeRegistry.COOLDOWN_REDUCTION.get(), MAG_COOLDOWN_REDUCTION_UUID);
         }
-        if (summonHpAttr != null) {
-            removeModifier(player, summonHpAttr, CHA_SUMMON_HEALTH_UUID);
-        }
-        if (summonDmgAttr != null) {
-            removeModifier(player, summonDmgAttr, CHA_SUMMON_DAMAGE_UUID);
-        }
-    }
 
-    public static void applyMagicScaling(Player player, int magicScaling) {
-        if (magicScaling <= 0) {
-            clearMagicScaling(player);
-            return;
-        }
-        double spPerPoint = 0.0075d;
-        double spMax = 0.75d;
-        double spBonus = Math.min(magicScaling * spPerPoint, spMax);
-        applyMultiplyBaseModifier(
-                player,
-                (Attribute) AttributeRegistry.SPELL_POWER.get(),
-                MAG_SPELL_POWER_UUID,
-                "Ascend Magic Scaling spell power",
-                spBonus
-        );
-        double cdrPerPoint = 0.0015d;
-        double cdrMax = 0.15d;
-        double cdrBonus = Math.min(magicScaling * cdrPerPoint, cdrMax);
-        applyMultiplyBaseModifier(
-                player,
-                (Attribute) AttributeRegistry.COOLDOWN_REDUCTION.get(),
-                MAG_COOLDOWN_REDUCTION_UUID,
-                "Ascend Magic Scaling cooldown reduction",
-                cdrBonus
-        );
-    }
-
-    private static void clearMagicScaling(Player player) {
-        removeModifier(player, (Attribute) AttributeRegistry.SPELL_POWER.get(), MAG_SPELL_POWER_UUID);
-        removeModifier(player, (Attribute) AttributeRegistry.COOLDOWN_REDUCTION.get(), MAG_COOLDOWN_REDUCTION_UUID);
-    }
-
-    private static void applyAddModifier(Player player, Attribute attribute, UUID id, String name, double value) {
-        if (attribute == null) return;
-        AttributeInstance inst = player.getAttribute(attribute);
-        if (inst == null) return;
-        inst.removeModifier(id);
-        if (value != 0.0d) {
-            inst.addTransientModifier(new AttributeModifier(
-                    id,
-                    name,
-                    value,
-                    AttributeModifier.Operation.ADDITION
-            ));
-        }
-    }
-
-    private static void applyMultiplyBaseModifier(Player player, Attribute attribute, UUID id, String name, double value) {
-        if (attribute == null) return;
-        AttributeInstance inst = player.getAttribute(attribute);
-        if (inst == null) return;
-        inst.removeModifier(id);
-        if (value != 0.0d) {
-            inst.addTransientModifier(new AttributeModifier(
-                    id,
-                    name,
-                    value,
-                    AttributeModifier.Operation.MULTIPLY_BASE
-            ));
-        }
-    }
-
-    private static void removeModifier(Player player, Attribute attribute, UUID id) {
-        if (attribute == null) return;
-        AttributeInstance inst = player.getAttribute(attribute);
-        if (inst != null) {
+        private static void applyAddModifier(Player player, Attribute attribute, UUID id, String name, double value) {
+            if (attribute == null) return;
+            AttributeInstance inst = player.getAttribute(attribute);
+            if (inst == null) return;
             inst.removeModifier(id);
+            if (value != 0.0d) {
+                inst.addTransientModifier(new AttributeModifier(
+                        id,
+                        name,
+                        value,
+                        AttributeModifier.Operation.ADDITION
+                ));
+            }
+        }
+
+        private static void applyMultiplyBaseModifier(Player player, Attribute attribute, UUID id, String name, double value) {
+            if (attribute == null) return;
+            AttributeInstance inst = player.getAttribute(attribute);
+            if (inst == null) return;
+            inst.removeModifier(id);
+            if (value != 0.0d) {
+                inst.addTransientModifier(new AttributeModifier(
+                        id,
+                        name,
+                        value,
+                        AttributeModifier.Operation.MULTIPLY_BASE
+                ));
+            }
+        }
+
+        private static void removeModifier(Player player, Attribute attribute, UUID id) {
+            if (attribute == null) return;
+            AttributeInstance inst = player.getAttribute(attribute);
+            if (inst != null) {
+                inst.removeModifier(id);
+            }
         }
     }
 }
