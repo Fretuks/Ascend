@@ -7,6 +7,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -72,12 +73,12 @@ public class WeaponMagicScalingEvents {
                 || id.equals("indirectMagic")
                 || id.equals("wither")
                 || id.equals("dragonBreath")
-                || id.equals("thrown")     
+                || id.equals("thrown")
                 || id.equals("potion");
     }
 
     private static boolean isRangedDamage(DamageSource source) {
-        return source.isProjectile()
+        return source.getDirectEntity() instanceof Projectile
                 || source.getDirectEntity() instanceof AbstractArrow
                 || source.getDirectEntity() instanceof ThrownTrident
                 || source.getDirectEntity() instanceof FireworkRocketEntity;
