@@ -14,11 +14,11 @@
   "ascend.attribute.fortitude": "Fortitude",
   "ascend.attribute.fortitude.desc": "Increases max health and knockback resistance.",
   "ascend.attribute.intelligence": "Intelligence",
-  "ascend.attribute.intelligence.desc": "Increases max mana and mana regeneration. Also lowers enchantment cost and buffs potions.",
+  "ascend.attribute.intelligence.desc": "Increases max mana and mana regeneration. Lowers enchantment/anvil costs, buffs potions, and boosts knowledge gain.",
   "ascend.attribute.willpower": "Willpower",
-  "ascend.attribute.willpower.desc": "Reduces sanity drain and improves stamina/tempo.",
+  "ascend.attribute.willpower.desc": "Reduces sanity drain, improves stamina/tempo, and increases passive health regeneration.",
   "ascend.attribute.charisma": "Charisma",
-  "ascend.attribute.charisma.desc": "Increases max mana and improves trade deals.",
+  "ascend.attribute.charisma.desc": "Increases max mana, improves trade deals, boosts villager reputation, and empowers tamed allies/golems.",
   "ascend.attribute.light_scaling": "Light Scaling",
   "ascend.attribute.light_scaling.desc": "Improves light weapon performance.",
   "ascend.attribute.medium_scaling": "Medium Scaling",
@@ -36,4 +36,3 @@
   "item.ascend.remembrance_essence": "Remembrance Essence",
   "block.ascend.shrine_of_remembrance": "Shrine of Remembrance"
 }
-
