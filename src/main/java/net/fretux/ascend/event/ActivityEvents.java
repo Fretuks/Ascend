@@ -28,6 +28,7 @@ import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.animal.SnowGolem;
+import net.minecraft.world.entity.npc.GossipType;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraft.world.phys.AABB;
 
@@ -330,11 +331,11 @@ public class ActivityEvents {
         if (entity instanceof AbstractHorse horse) {
             return horse.isTamed() && player.getUUID().equals(horse.getOwnerUUID());
         }
-        if (entity instanceof IronGolem ironGolem) {
-            return ironGolem.isPlayerCreated();
+        if (entity instanceof IronGolem) {
+            return true;
         }
-        if (entity instanceof SnowGolem snowGolem) {
-            return snowGolem.isPlayerCreated();
+        if (entity instanceof SnowGolem) {
+            return true;
         }
         return false;
     }
@@ -346,11 +347,11 @@ public class ActivityEvents {
         if (entity instanceof AbstractHorse horse) {
             return horse.isTamed();
         }
-        if (entity instanceof IronGolem ironGolem) {
-            return ironGolem.isPlayerCreated();
+        if (entity instanceof IronGolem) {
+            return true;
         }
-        if (entity instanceof SnowGolem snowGolem) {
-            return snowGolem.isPlayerCreated();
+        if (entity instanceof SnowGolem) {
+            return true;
         }
         return false;
     }
