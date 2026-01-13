@@ -3,6 +3,7 @@ package net.fretux.ascend.player;
 import net.fretux.ascend.compat.IronsSpellbooksCompat;
 import net.fretux.ascend.config.AscendConfig;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -23,6 +24,10 @@ public final class StatEffects {
             UUID.fromString("d3a4b5c6-7d8e-4f90-8a1b-223344556677");
     private static final UUID FORTITUDE_KB_RESIST_UUID =
             UUID.fromString("e4b5c6d7-8e9f-4012-9abc-334455667788");
+    private static final UUID CHARISMA_ALLY_HEALTH_UUID =
+            UUID.fromString("f5c6d7e8-9012-4bcd-9ef0-445566778899");
+    private static final UUID CHARISMA_ALLY_DAMAGE_UUID =
+            UUID.fromString("0a1b2c3d-4e5f-4012-8a9b-556677889900");
 
     private StatEffects() {
     }
@@ -145,6 +150,12 @@ public final class StatEffects {
         return (float) (1.0d + bonus);
     }
 
+    public static float getWillpowerHealthRegen(int willpowerLevel) {
+        if (willpowerLevel <= 0) return 0.0f;
+        double bonus = Math.min(willpowerLevel * 0.01d * getScaling(), 2.0d);
+        return (float) bonus;
+    }
+
     public static float getPlayerSanityMultiplier(Player player) {
         return player.getCapability(PlayerStatsProvider.PLAYER_STATS)
                 .map(stats -> getWillpowerSanityMultiplier(stats.getAttributeLevel("willpower")))
@@ -161,11 +172,96 @@ public final class StatEffects {
         return Math.max(0, intelligenceLevel);
     }
 
+    public static double getIntelligenceAnvilCostReduction(int intelligenceLevel) {
+        if (intelligenceLevel <= 0) return 0.0d;
+        double perPoint = 0.005d;
+        double max = 0.40d;
+        return Math.min(intelligenceLevel * perPoint * getScaling(), max);
+    }
+
+    public static int getIntelligenceKnowledgeGain(int intelligenceLevel, int baseGain) {
+        if (baseGain <= 0) return baseGain;
+        if (intelligenceLevel <= 0) return baseGain;
+        double perPoint = 0.005d;
+        double max = 0.50d;
+        double bonus = Math.min(intelligenceLevel * perPoint * getScaling(), max);
+        int extra = (int) Math.floor(baseGain * bonus);
+        return baseGain + Math.max(0, extra);
+    }
+
     public static double getCharismaTradeDiscount(int charismaLevel) {
         if (charismaLevel <= 0) return 0.0d;
         double perPoint = 0.01d;
         double max = 0.30d;
         return Math.min(charismaLevel * perPoint * getScaling(), max);
+    }
+
+    public static int getCharismaVillagerReputationBonus(int charismaLevel) {
+        if (charismaLevel <= 0) return 0;
+        double perPoint = 0.1d;
+        double max = 10.0d;
+        return (int) Math.floor(Math.min(charismaLevel * perPoint * getScaling(), max));
+    }
+
+    public static double getCharismaAllyHealthBonus(int charismaLevel) {
+        if (charismaLevel <= 0) return 0.0d;
+        double perPoint = 0.0025d;
+        double max = 0.25d;
+        return Math.min(charismaLevel * perPoint * getScaling(), max);
+    }
+
+    public static double getCharismaAllyDamageBonus(int charismaLevel) {
+        if (charismaLevel <= 0) return 0.0d;
+        double perPoint = 0.0020d;
+        double max = 0.20d;
+        return Math.min(charismaLevel * perPoint * getScaling(), max);
+    }
+
+    public static void applyCharismaAllyBuff(LivingEntity entity, int charismaLevel) {
+        if (charismaLevel <= 0) {
+            clearCharismaAllyBuff(entity);
+            return;
+        }
+        double healthBonus = getCharismaAllyHealthBonus(charismaLevel);
+        AttributeInstance health = entity.getAttribute(Attributes.MAX_HEALTH);
+        if (health != null) {
+            health.removeModifier(CHARISMA_ALLY_HEALTH_UUID);
+            if (healthBonus > 0.0d) {
+                health.addTransientModifier(new AttributeModifier(
+                        CHARISMA_ALLY_HEALTH_UUID,
+                        "Ascend Charisma ally max health",
+                        healthBonus,
+                        AttributeModifier.Operation.MULTIPLY_BASE
+                ));
+            }
+        }
+        double damageBonus = getCharismaAllyDamageBonus(charismaLevel);
+        AttributeInstance damage = entity.getAttribute(Attributes.ATTACK_DAMAGE);
+        if (damage != null) {
+            damage.removeModifier(CHARISMA_ALLY_DAMAGE_UUID);
+            if (damageBonus > 0.0d) {
+                damage.addTransientModifier(new AttributeModifier(
+                        CHARISMA_ALLY_DAMAGE_UUID,
+                        "Ascend Charisma ally damage",
+                        damageBonus,
+                        AttributeModifier.Operation.MULTIPLY_BASE
+                ));
+            }
+        }
+    }
+
+    public static void clearCharismaAllyBuff(LivingEntity entity) {
+        AttributeInstance health = entity.getAttribute(Attributes.MAX_HEALTH);
+        if (health != null) {
+            health.removeModifier(CHARISMA_ALLY_HEALTH_UUID);
+        }
+        AttributeInstance damage = entity.getAttribute(Attributes.ATTACK_DAMAGE);
+        if (damage != null) {
+            damage.removeModifier(CHARISMA_ALLY_DAMAGE_UUID);
+        }
+        if (entity.getHealth() > entity.getMaxHealth()) {
+            entity.setHealth(entity.getMaxHealth());
+        }
     }
     
     public static double getWeaponScalingMultiplier(int scalingLevel) {

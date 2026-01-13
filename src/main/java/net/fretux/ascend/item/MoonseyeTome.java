@@ -26,8 +26,8 @@ public class MoonseyeTome extends Item {
             } else {
                 gained = 50;
             }
-            stats.addKnowledge(gained);
-            player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("item.ascend.moonseye_tome.used", gained));
+            int totalGained = stats.addKnowledgeScaled(gained);
+            player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("item.ascend.moonseye_tome.used", totalGained));
             player.playSound(SoundEvents.ENCHANTMENT_TABLE_USE, 1.0f, 1.2f);
             stack.shrink(1);
             PlayerStatsProvider.sync(player);
