@@ -14,7 +14,7 @@ import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.entity.animal.TamableAnimal;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -201,6 +201,13 @@ public class ActivityEvents {
         Player player = event.getEntity();
         if (player.level().isClientSide) return;
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+            int charisma = stats.getAttributeLevel("charisma");
+            if (charisma > 0) {
+                int reputationBonus = StatEffects.getCharismaVillagerReputationBonus(charisma);
+                if (reputationBonus > 0 && event.getTarget() instanceof Villager villager) {
+                    villager.getGossips().add(player.getUUID(), GossipType.MINOR_POSITIVE, reputationBonus);
+                }
+            }
             stats.addAscendXP((int) (AscendConfig.COMMON.xpPerTrade.get() * AscendConfig.COMMON.xpMultiplier.get()));
             PlayerStatsProvider.sync(player);
         });
