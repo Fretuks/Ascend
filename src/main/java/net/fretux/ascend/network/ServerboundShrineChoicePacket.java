@@ -55,7 +55,7 @@ public class ServerboundShrineChoicePacket {
                         player.getCapability(PlayerCapabilityProvider.SANITY).ifPresent(sanity -> {
                             float sanityPercent = sanity.getSanity() / sanity.getMaxSanity();
                             if (sanityPercent >= 0.90f) {
-                                stats.addKnowledge(5);
+                                stats.addKnowledgeScaled(5);
                                 sanity.setSanity(0);
                                 sanity.setInsanity(0);
                                 player.sendSystemMessage(Component.literal("YOUR MIND EXPANDS AS IT BREAKS."));

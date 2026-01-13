@@ -32,7 +32,7 @@ public class PlayerStats {
             ascendXP -= xpNeeded;
             ascendLevel++;
             unspentPoints += POINTS_PER_LEVEL;
-            knowledge += 1;
+            addKnowledgeScaled(1);
         }
         if (ascendLevel >= MAX_ASCEND_LEVEL) {
             int xpNeeded = getXPToNextAscendLevel();
@@ -109,6 +109,17 @@ public class PlayerStats {
 
     public void addKnowledge(int amount) {
         knowledge = Math.max(0, knowledge + amount);
+    }
+
+    public int addKnowledgeScaled(int amount) {
+        if (amount <= 0) {
+            addKnowledge(amount);
+            return amount;
+        }
+        int intelligence = getAttributeLevel("intelligence");
+        int scaled = StatEffects.getIntelligenceKnowledgeGain(intelligence, amount);
+        addKnowledge(scaled);
+        return scaled;
     }
 
     public void refundAllPoints() {

@@ -7,6 +7,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.GossipType;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -25,6 +27,13 @@ public class CharismaTradeEvents {
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
             int cha = stats.getAttributeLevel("charisma");
             if (cha <= 0) return;
+
+            if (merchantMenu.getTrader() instanceof Villager villager) {
+                int reputationBonus = StatEffects.getCharismaVillagerReputationBonus(cha);
+                if (reputationBonus > 0) {
+                    villager.getGossips().add(player.getUUID(), GossipType.MINOR_POSITIVE, reputationBonus);
+                }
+            }
 
             double discountFraction = StatEffects.getCharismaTradeDiscount(cha);
             if (discountFraction <= 0.0d) return;
