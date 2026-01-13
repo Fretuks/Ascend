@@ -28,7 +28,6 @@ import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.animal.SnowGolem;
-import net.minecraft.world.entity.npc.GossipType;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraft.world.phys.AABB;
 
