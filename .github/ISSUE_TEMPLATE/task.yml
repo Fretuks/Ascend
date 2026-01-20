@@ -1,0 +1,31 @@
+name: "🧹 Maintenance task"
+description: "Track upkeep, refactors, or internal tasks."
+title: "[Task]: "
+labels: ["maintenance"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for internal maintenance work.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: "Describe the task and goal."
+    validations:
+      required: true
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: Define acceptance criteria
+        - label: Identify impacted modules
+        - label: Add/adjust tests if needed
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: "Links, references, or additional details."
+    validations:
+      required: false
