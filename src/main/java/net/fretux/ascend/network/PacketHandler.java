@@ -15,7 +15,7 @@ public class PacketHandler {
 
     public static void register() {
         INSTANCE = NetworkRegistry.newSimpleChannel(
-                new ResourceLocation(AscendMod.MODID, "main"),
+                ResourceLocation.fromNamespaceAndPath(AscendMod.MODID, "main"),
                 () -> PROTOCOL_VERSION,
                 PROTOCOL_VERSION::equals,
                 PROTOCOL_VERSION::equals

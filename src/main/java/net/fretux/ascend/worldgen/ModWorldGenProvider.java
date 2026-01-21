@@ -31,11 +31,11 @@ public class ModWorldGenProvider extends DatapackBuiltinEntriesProvider {
 
     public static final ResourceKey<Structure> SHRINE =
             ResourceKey.create(Registries.STRUCTURE,
-                    new ResourceLocation(AscendMod.MODID, "shrine_of_remembrance"));
+                    ResourceLocation.fromNamespaceAndPath(AscendMod.MODID, "shrine_of_remembrance"));
 
     public static final ResourceKey<StructureSet> SHRINE_SET =
             ResourceKey.create(Registries.STRUCTURE_SET,
-                    new ResourceLocation(AscendMod.MODID, "shrine_set"));
+                    ResourceLocation.fromNamespaceAndPath(AscendMod.MODID, "shrine_set"));
 
     public ModWorldGenProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         super(output, registries, new RegistrySetBuilder()

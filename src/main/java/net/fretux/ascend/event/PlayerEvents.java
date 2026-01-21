@@ -15,7 +15,7 @@ import net.minecraftforge.fml.common.Mod;
 public class PlayerEvents {
 
     private static final ResourceLocation PLAYER_STATS_ID =
-            new ResourceLocation(AscendMod.MODID, "player_stats");
+            ResourceLocation.fromNamespaceAndPath(AscendMod.MODID, "player_stats");
 
     @SubscribeEvent
     public static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
