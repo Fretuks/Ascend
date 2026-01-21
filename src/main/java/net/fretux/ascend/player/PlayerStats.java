@@ -7,34 +7,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PlayerStats {
-    public static final int POINTS_PER_LEVEL = AscendConfig.COMMON.pointsPerLevel.get();
-    public static final int MAX_ASCEND_LEVEL = AscendConfig.COMMON.maxAscendLevel.get();
-    public static final int MAX_ATTRIBUTE_POINTS = AscendConfig.COMMON.maxAttributePoints.get();
+    private static final String[] ATTRIBUTE_KEYS = {
+            "strength", "agility", "fortitude", "intelligence",
+            "willpower", "charisma",
+            "light_scaling", "medium_scaling", "heavy_scaling", "magic_scaling"
+    };
     private final Map<String, Integer> attributes = new HashMap<>();
     private int ascendLevel = 1;
     private int ascendXP = 0;
-    private int unspentPoints = POINTS_PER_LEVEL;
+    private int unspentPoints = getPointsPerLevel();
     public PlayerStats() {
-        for (String attr : new String[]{
-                "strength", "agility", "fortitude", "intelligence",
-                "willpower", "charisma",
-                "light_scaling", "medium_scaling", "heavy_scaling", "magic_scaling"}) {
+        for (String attr : ATTRIBUTE_KEYS) {
             attributes.put(attr, 0);
         }
     }
 
     public void addAscendXP(int amount) {
-        if (amount <= 0 || ascendLevel >= MAX_ASCEND_LEVEL) return;
+        if (amount <= 0 || ascendLevel >= getMaxAscendLevel()) return;
         ascendXP += amount;
-        while (ascendLevel < MAX_ASCEND_LEVEL) {
+        while (ascendLevel < getMaxAscendLevel()) {
             int xpNeeded = getXPToNextAscendLevel();
             if (ascendXP < xpNeeded) break;
             ascendXP -= xpNeeded;
             ascendLevel++;
-            unspentPoints += POINTS_PER_LEVEL;
+            unspentPoints += getPointsPerLevel();
             addKnowledgeScaled(1);
         }
-        if (ascendLevel >= MAX_ASCEND_LEVEL) {
+        if (ascendLevel >= getMaxAscendLevel()) {
             int xpNeeded = getXPToNextAscendLevel();
             if (ascendXP > xpNeeded) {
                 ascendXP = xpNeeded;
@@ -51,7 +50,7 @@ public class PlayerStats {
     }
 
     public int getXPToNextAscendLevel() {
-        if (ascendLevel >= MAX_ASCEND_LEVEL) return 0;
+        if (ascendLevel >= getMaxAscendLevel()) return 0;
         double base = 100.0;
         double growth = 1.25;
         return (int) Math.ceil(base * Math.pow(growth, ascendLevel - 1) + (ascendLevel * 100));
@@ -62,13 +61,13 @@ public class PlayerStats {
     }
 
     public void addUnspentPoints(int amount) {
-        unspentPoints += amount;
+        unspentPoints = Math.max(0, unspentPoints + amount);
     }
 
     public boolean spendPoints(String attribute) {
         if (!attributes.containsKey(attribute)) return false;
         int level = attributes.get(attribute);
-        if (level >= MAX_ATTRIBUTE_POINTS) {
+        if (level >= getMaxAttributePoints()) {
             return false;
         }
         if (unspentPoints <= 0) {
@@ -89,7 +88,7 @@ public class PlayerStats {
 
     public void setAttributeLevel(String attribute, int level) {
         if (!attributes.containsKey(attribute)) return;
-        int clamped = Math.max(0, Math.min(level, MAX_ATTRIBUTE_POINTS));
+        int clamped = Math.max(0, Math.min(level, getMaxAttributePoints()));
         attributes.put(attribute, clamped);
     }
 
@@ -158,24 +157,41 @@ public class PlayerStats {
 
     public void deserializeNBT(CompoundTag tag) {
         ascendLevel = tag.contains("AscendLevel") ? tag.getInt("AscendLevel") : 1;
+        ascendLevel = Math.max(1, Math.min(ascendLevel, getMaxAscendLevel()));
         ascendXP = tag.contains("AscendXP") ? tag.getInt("AscendXP") : 0;
         if (tag.contains("UnspentPoints")) {
-            unspentPoints = tag.getInt("UnspentPoints");
+            unspentPoints = Math.max(0, tag.getInt("UnspentPoints"));
         } else {
-            unspentPoints = POINTS_PER_LEVEL;
+            unspentPoints = getPointsPerLevel();
         }
         if (tag.contains("Attributes")) {
             CompoundTag attrTag = tag.getCompound("Attributes");
             for (String key : attributes.keySet()) {
                 int loaded = attrTag.getInt(key);
-                attributes.put(key, Math.max(0, Math.min(loaded, MAX_ATTRIBUTE_POINTS)));
+                attributes.put(key, Math.max(0, Math.min(loaded, getMaxAttributePoints())));
             }
         }
         if (tag.contains("Knowledge")) {
-            knowledge = tag.getInt("Knowledge");
+            knowledge = Math.max(0, tag.getInt("Knowledge"));
         }
         if (tag.contains("HasUsedMoonseye")) {
             hasUsedMoonseye = tag.getBoolean("HasUsedMoonseye");
         }
+        int maxXp = getXPToNextAscendLevel();
+        if (ascendXP > maxXp) {
+            ascendXP = maxXp;
+        }
+    }
+
+    private static int getPointsPerLevel() {
+        return AscendConfig.COMMON.pointsPerLevel.get();
+    }
+
+    private static int getMaxAscendLevel() {
+        return AscendConfig.COMMON.maxAscendLevel.get();
+    }
+
+    private static int getMaxAttributePoints() {
+        return AscendConfig.COMMON.maxAttributePoints.get();
     }
 }
