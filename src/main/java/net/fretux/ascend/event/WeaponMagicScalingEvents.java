@@ -29,13 +29,7 @@ public class WeaponMagicScalingEvents {
             float base = event.getAmount();
             float modified = base;
             if (isMagicDamage(event.getSource())) {
-                int magicScaling = stats.getAttributeLevel("magic_scaling");
-                if (magicScaling > 0) {
-                    double perPoint = 0.005d;
-                    double maxBonus = 0.40d;
-                    double bonusMult = 1.0d + Math.min(magicScaling * perPoint * getScaling(), maxBonus);
-                    modified = (float) (modified * bonusMult);
-                }
+                modified = applyProphetsSonSpellScaling(stats, modified);
             } else if (isRangedDamage(event.getSource())) {
                 double rangedMultiplier = getRangedScalingMultiplier(stats, event.getSource());
                 modified = (float) (modified * rangedMultiplier);
@@ -82,6 +76,23 @@ public class WeaponMagicScalingEvents {
                 || source.getDirectEntity() instanceof AbstractArrow
                 || source.getDirectEntity() instanceof ThrownTrident
                 || source.getDirectEntity() instanceof FireworkRocketEntity;
+    }
+
+    private static float applyProphetsSonSpellScaling(
+            net.fretux.ascend.player.PlayerStats stats,
+            float damage
+    ) {
+        int investment = Math.min(stats.getAttributeLevel("magic_scaling"), 100);
+        int songchant = stats.getAttributeLevel("charisma");
+        if (investment <= 0) {
+            return damage;
+        }
+        double scaling = 2.75d;
+        double bonusMult = 1.0d
+                + ((scaling / 10.0d)
+                * (investment / 100.0d)
+                * (1.0d + songchant * 0.065d));
+        return (float) (damage * bonusMult);
     }
 
     private static double getRangedScalingMultiplier(
