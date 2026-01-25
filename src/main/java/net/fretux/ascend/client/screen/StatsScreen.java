@@ -71,9 +71,12 @@ public class StatsScreen extends Screen {
     public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(gui);
         RenderSystem.enableBlend();
-        gui.fill(leftPos - 4, topPos - 4, leftPos + WIDTH + 4, topPos + HEIGHT + 4, 0xAA000000);
+        gui.fill(leftPos - 8, topPos - 8, leftPos + WIDTH + 8, topPos + HEIGHT + 8, 0xDD0C0B12);
+        gui.fill(leftPos - 4, topPos - 4, leftPos + WIDTH + 4, topPos + HEIGHT + 4, 0xE0181422);
+        gui.fill(leftPos - 4, topPos - 4, leftPos + WIDTH + 4, topPos + 20, 0xFF2A2036);
+        gui.fill(leftPos - 4, topPos + 20, leftPos + WIDTH + 4, topPos + 21, 0x66FFFFFF);
         RenderSystem.disableBlend();
-        gui.drawCenteredString(this.font, Component.translatable("ascend.stats.title"), this.width / 2, topPos + 8, 0xFFFFFF);
+        gui.drawCenteredString(this.font, Component.translatable("ascend.stats.title"), this.width / 2, topPos + 6, 0xFFFFFF);
         hoveredAttributeKey = null;
         if (mc.player != null) {
             mc.player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
@@ -81,22 +84,25 @@ public class StatsScreen extends Screen {
                 int xp = stats.getAscendXP();
                 int xpNext = stats.getXPToNextAscendLevel();
                 int unspent = stats.getUnspentPoints();
-                gui.drawString(font, Component.translatable("ascend.stats.level", level, 20), leftPos + 10, topPos + 24, 0xFFFF55);
+                gui.drawString(font, Component.translatable("ascend.stats.level", level, 20), leftPos + 10, topPos + 28, 0xFFE27D);
                 if (level < 20) {
-                    gui.drawString(font, Component.translatable("ascend.stats.xp", xp, xpNext), leftPos + 10, topPos + 36, 0xAAAAAA);
+                    gui.drawString(font, Component.translatable("ascend.stats.xp", xp, xpNext), leftPos + 10, topPos + 40, 0xB4B4C8);
                 } else {
-                    gui.drawString(font, Component.translatable("ascend.stats.xp_max"), leftPos + 10, topPos + 36, 0xAAAAAA);
+                    gui.drawString(font, Component.translatable("ascend.stats.xp_max"), leftPos + 10, topPos + 40, 0xB4B4C8);
                 }
+                int unspentLabelWidth = font.width("Unspent Points: " + unspent);
+                int unspentX = leftPos + WIDTH - 10 - unspentLabelWidth;
+                gui.fill(unspentX - 6, topPos + 24, leftPos + WIDTH - 4, topPos + 38, 0x662D3B1E);
                 gui.drawString(font, Component.translatable("ascend.stats.unspent", unspent),
-                        leftPos + WIDTH - 10 - font.width("Unspent Points: " + unspent), topPos + 24, 0x55FF55);
-                int y = topPos + 55;
+                        unspentX, topPos + 28, 0x8CFF8C);
+                int y = topPos + 64;
                 for (String key : ATTRIBUTES) {
                     int attrLevel = stats.getAttributeLevel(key);
                     int cost = stats.getCostToUpgrade(key);
                     Component name = Component.translatable("ascend.attribute." + key);
                     Component label = Component.translatable("ascend.attribute.display", name, attrLevel);
                     int labelX = leftPos + 10;
-                    gui.drawString(font, label, labelX, y, 0xFFFFFF);
+                    gui.drawString(font, label, labelX, y, 0xE6E6F2);
 
                     Button plus = plusButtons.get(key);
                     if (plus != null) {
