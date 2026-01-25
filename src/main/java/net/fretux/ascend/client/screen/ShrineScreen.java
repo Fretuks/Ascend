@@ -143,26 +143,29 @@ public class ShrineScreen extends Screen {
     public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(gui);
         RenderSystem.enableBlend();
-        gui.fill(leftPos - 6, topPos - 6, leftPos + WIDTH + 6, topPos + HEIGHT + 6, 0xCC000000);
+        gui.fill(leftPos - 8, topPos - 8, leftPos + WIDTH + 8, topPos + HEIGHT + 8, 0xDD0D0B14);
+        gui.fill(leftPos - 4, topPos - 4, leftPos + WIDTH + 4, topPos + HEIGHT + 4, 0xE01A1424);
+        gui.fill(leftPos - 4, topPos - 4, leftPos + WIDTH + 4, topPos + 20, 0xFF2A1F3A);
+        gui.fill(leftPos - 4, topPos + 20, leftPos + WIDTH + 4, topPos + 21, 0x66FFFFFF);
         RenderSystem.disableBlend();
 
-        int titleColor = 0xAA55FF;
-        gui.drawCenteredString(this.font, "Shrine of Remembrance", this.width / 2, topPos, 0xFFFFFF);
+        int titleColor = 0xCDA1FF;
+        gui.drawCenteredString(this.font, "Shrine of Remembrance", this.width / 2, topPos + 6, 0xFFFFFF);
 
-        gui.drawCenteredString(this.font, "Knowledge: " + playerKnowledge, this.width / 2, topPos + 20, 0x55FFAA);
+        gui.drawCenteredString(this.font, "Knowledge: " + playerKnowledge, this.width / 2, topPos + 28, 0x8FEBD2);
 
         switch (dialogueStage) {
             case 0 -> {
-                gui.drawCenteredString(this.font, "SPEAK, LITTLE ONE.", this.width / 2, topPos + 40, titleColor);
-                gui.drawCenteredString(this.font, "WHAT IS IT YOU SEEK TO UNMAKE?", this.width / 2, topPos + 55, titleColor);
+                gui.drawCenteredString(this.font, "SPEAK, LITTLE ONE.", this.width / 2, topPos + 46, titleColor);
+                gui.drawCenteredString(this.font, "WHAT IS IT YOU SEEK TO UNMAKE?", this.width / 2, topPos + 62, titleColor);
             }
             case 1 -> {
-                gui.drawCenteredString(this.font, "THE TERMS ARE AS FOLLOWS:", this.width / 2, topPos + 40, titleColor);
-                gui.drawCenteredString(this.font, "I WILL CONSUME YOUR KNOWLEDGE.", this.width / 2, topPos + 55, titleColor);
-                gui.drawCenteredString(this.font, "YOU WILL REAP A BENEFIT.", this.width / 2, topPos + 70, titleColor);
+                gui.drawCenteredString(this.font, "THE TERMS ARE AS FOLLOWS:", this.width / 2, topPos + 46, titleColor);
+                gui.drawCenteredString(this.font, "I WILL CONSUME YOUR KNOWLEDGE.", this.width / 2, topPos + 62, titleColor);
+                gui.drawCenteredString(this.font, "YOU WILL REAP A BENEFIT.", this.width / 2, topPos + 78, titleColor);
             }
             case 2 -> {
-                gui.drawCenteredString(this.font, "SPEAK YOUR DESIRE, FOOLISH ONE.", this.width / 2, topPos + 40, titleColor);
+                gui.drawCenteredString(this.font, "SPEAK YOUR DESIRE, FOOLISH ONE.", this.width / 2, topPos + 52, titleColor);
             }
         }
 
