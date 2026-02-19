@@ -13,7 +13,7 @@ public class PlayerStats {
     public static final int MAX_ATTRIBUTE_POINTS = AscendConfig.COMMON.maxAttributePoints.get();
     private final Map<String, Integer> attributes = new HashMap<>();
     private int ascendLevel = 1;
-    private int ascendXP = 0;
+    private long ascendXP = 0;
     private int unspentPoints = POINTS_PER_LEVEL;
 
     public PlayerStats() {
@@ -29,7 +29,7 @@ public class PlayerStats {
         if (amount <= 0 || ascendLevel >= MAX_ASCEND_LEVEL) return;
         ascendXP += amount;
         while (ascendLevel < MAX_ASCEND_LEVEL) {
-            int xpNeeded = getXPToNextAscendLevel();
+            long xpNeeded = getXPToNextAscendLevel();
             if (ascendXP < xpNeeded) break;
             ascendXP -= xpNeeded;
             ascendLevel++;
@@ -37,7 +37,7 @@ public class PlayerStats {
             knowledge += 1;
         }
         if (ascendLevel >= MAX_ASCEND_LEVEL) {
-            int xpNeeded = getXPToNextAscendLevel();
+            long xpNeeded = getXPToNextAscendLevel();
             if (ascendXP > xpNeeded) {
                 ascendXP = xpNeeded;
             }
@@ -49,11 +49,11 @@ public class PlayerStats {
         return ascendLevel;
     }
 
-    public int getAscendXP() {
+    public long getAscendXP() {
         return ascendXP;
     }
 
-    public int getXPToNextAscendLevel() {
+    public long getXPToNextAscendLevel() {
         if (ascendLevel >= MAX_ASCEND_LEVEL) return 0;
         double base = 100.0;
         double growth = 1.3;
@@ -106,7 +106,7 @@ public class PlayerStats {
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
         tag.putInt("AscendLevel", ascendLevel);
-        tag.putInt("AscendXP", ascendXP);
+        tag.putLong("AscendXP", ascendXP);
         tag.putInt("UnspentPoints", unspentPoints);
         tag.putInt("Knowledge", knowledge);
         tag.putBoolean("HasUsedMoonseye", hasUsedMoonseye);
@@ -120,7 +120,7 @@ public class PlayerStats {
 
     public void deserializeNBT(CompoundTag tag) {
         ascendLevel = tag.contains("AscendLevel") ? tag.getInt("AscendLevel") : 1;
-        ascendXP = tag.contains("AscendXP") ? tag.getInt("AscendXP") : 0;
+        ascendXP = tag.contains("AscendXP") ? tag.getLong("AscendXP") : 0;
         if (tag.contains("UnspentPoints")) {
             unspentPoints = tag.getInt("UnspentPoints");
         } else {

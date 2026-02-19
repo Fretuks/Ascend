@@ -1,6 +1,7 @@
 package net.fretux.ascend.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.fretux.ascend.config.AscendConfig;
 import net.fretux.ascend.network.ServerStatsPayload;
 import net.fretux.ascend.player.PlayerStatsProvider;
 import net.minecraft.client.Minecraft;
@@ -17,6 +18,8 @@ public class StatsScreen extends Screen {
 
     private static final int WIDTH = 220;
     private static final int HEIGHT = 240;
+
+    public static final int MAX_ASCEND_LEVEL = AscendConfig.COMMON.maxAscendLevel.get();
 
     private int leftPos;
     private int topPos;
@@ -88,12 +91,12 @@ public class StatsScreen extends Screen {
         if (mc.player != null) {
             var stats = mc.player.getData(PlayerStatsProvider.PLAYER_STATS);
             int level = stats.getAscendLevel();
-            int xp = stats.getAscendXP();
-            int xpNext = stats.getXPToNextAscendLevel();
+            long xp = stats.getAscendXP();
+            long xpNext = stats.getXPToNextAscendLevel();
             int unspent = stats.getUnspentPoints();
 
-            gui.drawString(font, Component.translatable("ascend.stats.level", level, 20), leftPos + 10, topPos + 24, 0xFFFF55);
-            if (level < 20) {
+            gui.drawString(font, Component.translatable("ascend.stats.level", level, MAX_ASCEND_LEVEL), leftPos + 10, topPos + 24, 0xFFFF55);
+            if (level < MAX_ASCEND_LEVEL) {
                 gui.drawString(font, Component.translatable("ascend.stats.xp", xp, xpNext), leftPos + 10, topPos + 36, 0xAAAAAA);
             } else {
                 gui.drawString(font, Component.translatable("ascend.stats.xp_max"), leftPos + 10, topPos + 36, 0xAAAAAA);
