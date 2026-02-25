@@ -2,6 +2,7 @@
 package net.fretux.ascend.compat;
 
 import io.redspace.ironsspellbooks.api.registry.AttributeRegistry;
+import net.fretux.ascend.config.AscendConfig;
 import net.fretux.ascend.player.PlayerStatsProvider;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -45,6 +46,10 @@ public class IronsSpellbooksCompat {
 
     public static boolean isLoaded() {
         return ModList.get().isLoaded("irons_spellbooks");
+    }
+
+    private static double getScaling() {
+        return AscendConfig.COMMON.attributeScalingMultiplier.get();
     }
 
     public static void applyAll(Player player) {
@@ -225,7 +230,7 @@ public class IronsSpellbooksCompat {
         if (value != 0.0d) {
             inst.addTransientModifier(new AttributeModifier(
                     id,
-                    value,
+                    value * getScaling(),
                     AttributeModifier.Operation.ADD_VALUE
             ));
         }
@@ -239,7 +244,7 @@ public class IronsSpellbooksCompat {
         if (value != 0.0d) {
             inst.addTransientModifier(new AttributeModifier(
                     id,
-                    value,
+                    value * getScaling(),
                     AttributeModifier.Operation.ADD_MULTIPLIED_BASE
             ));
         }
