@@ -1,7 +1,8 @@
 package net.fretux.ascend.network;
 
-import net.fretux.ascend.client.screen.ShrineScreen;
-import net.minecraft.client.Minecraft;
+import net.fretux.ascend.client.ClientPacketHandlers;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -11,7 +12,7 @@ public class ClientboundOpenEssenceScreenPacket {
 
     public static void handle(ClientboundOpenEssenceScreenPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            Minecraft.getInstance().setScreen(new ShrineScreen(true));
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandlers.openShrineScreen(true));
         });
         ctx.get().setPacketHandled(true);
     }
