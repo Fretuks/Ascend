@@ -1,5 +1,6 @@
 package net.fretux.ascend.compat;
 
+import net.fretux.ascend.player.StatEffects;
 import io.redspace.ironsspellbooks.api.registry.AttributeRegistry;
 import net.fretux.ascend.player.PlayerStatsProvider;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -77,11 +78,9 @@ public class IronsSpellbooksCompat {
                     (Attribute) AttributeRegistry.MAX_MANA.get(),
                     INT_MAX_MANA_UUID,
                     "Ascend INT max mana",
-                    intelligence * 3.0d
+                    StatEffects.getIntelligenceManaBonus(intelligence)
             );
-            double regenPerPoint = 0.004d;
-            double regenMax = 0.40d;
-            double regenBonus = Math.min(intelligence * regenPerPoint, regenMax);
+            double regenBonus = StatEffects.getIntelligenceAnvilCostReduction(intelligence);
             applyMultiplyBaseModifier(
                     player,
                     (Attribute) AttributeRegistry.MANA_REGEN.get(),
@@ -101,9 +100,7 @@ public class IronsSpellbooksCompat {
             if (willpower <= 0) {
                 return;
             }
-            double perPoint = 0.0025d;
-            double max = 0.25d;
-            double reduction = Math.min(willpower * perPoint, max);
+            double reduction = StatEffects.getWillpowerCastTimeReduction(willpower);
             Attribute attr = (Attribute) AttributeRegistry.CAST_TIME_REDUCTION.get();
             if (attr == null) {
                 return;
@@ -135,7 +132,7 @@ public class IronsSpellbooksCompat {
                 return;
             }
             double manaPerPoint = 1.5d;
-            double bonusMana = charisma * manaPerPoint;
+            double bonusMana = Math.min(charisma * manaPerPoint, 150.0d);
             applyAddModifier(
                     player,
                     (Attribute) AttributeRegistry.MAX_MANA.get(),
@@ -143,9 +140,7 @@ public class IronsSpellbooksCompat {
                     "Ascend CHA max mana",
                     bonusMana
             );
-            double supportPerPoint = 0.003d;
-            double supportMax = 0.30d;
-            double supportBonus = Math.min(charisma * supportPerPoint, supportMax);
+            double supportBonus = StatEffects.getCharismaAllyDamageBonus(charisma);
             Attribute supportAttr = (Attribute) AttributeRegistry.HOLY_SPELL_POWER.get();
             if (supportAttr != null && supportBonus > 0.0d) {
                 applyMultiplyBaseModifier(
@@ -156,10 +151,8 @@ public class IronsSpellbooksCompat {
                         supportBonus
                 );
             }
-            double minionHpPerPoint = 0.004d;
-            double minionDmgPerPoint = 0.003d;
-            double minionHpBonus = Math.min(charisma * minionHpPerPoint, 0.40d);
-            double minionDmgBonus = Math.min(charisma * minionDmgPerPoint, 0.30d);
+            double minionHpBonus = Math.min(StatEffects.getCharismaAllyHealthBonus(charisma) * 1.25d, 0.25d);
+            double minionDmgBonus = Math.min(StatEffects.getCharismaAllyDamageBonus(charisma) * 1.25d, 0.25d);
             Attribute summonHpAttr = null;
             Attribute summonDmgAttr = (Attribute) AttributeRegistry.SUMMON_DAMAGE.get();
             if (summonHpAttr != null && minionHpBonus > 0.0d) {
@@ -203,9 +196,7 @@ public class IronsSpellbooksCompat {
                 clearMagicScaling(player);
                 return;
             }
-            double spPerPoint = 0.0075d;
-            double spMax = 0.75d;
-            double spBonus = Math.min(magicScaling * spPerPoint, spMax);
+            double spBonus = Math.min(StatEffects.getMagicScalingMultiplier(magicScaling) - 1.0d, 0.35d);
             applyMultiplyBaseModifier(
                     player,
                     (Attribute) AttributeRegistry.SPELL_POWER.get(),
@@ -213,9 +204,7 @@ public class IronsSpellbooksCompat {
                     "Ascend Magic Scaling spell power",
                     spBonus
             );
-            double cdrPerPoint = 0.0015d;
-            double cdrMax = 0.15d;
-            double cdrBonus = Math.min(magicScaling * cdrPerPoint, cdrMax);
+            double cdrBonus = Math.min((StatEffects.getMagicScalingMultiplier(magicScaling) - 1.0d) * 0.4d, 0.14d);
             applyMultiplyBaseModifier(
                     player,
                     (Attribute) AttributeRegistry.COOLDOWN_REDUCTION.get(),

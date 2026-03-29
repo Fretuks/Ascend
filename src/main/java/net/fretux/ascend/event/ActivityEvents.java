@@ -300,7 +300,7 @@ public class ActivityEvents {
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
             int agility = stats.getAttributeLevel("agility");
             if (agility <= 0) return;
-            double evadeChance = Math.min(agility * 0.0005d, 0.05d);
+            double evadeChance = StatEffects.getAgilityEvasionChance(agility);
             if (player.getRandom().nextDouble() < evadeChance) {
                 float original = event.getAmount();
                 event.setAmount(original * 0.1f);

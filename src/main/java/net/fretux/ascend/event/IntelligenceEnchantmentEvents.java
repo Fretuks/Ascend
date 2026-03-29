@@ -2,6 +2,7 @@ package net.fretux.ascend.event;
 
 import net.fretux.ascend.AscendMod;
 import net.fretux.ascend.player.PlayerStatsProvider;
+import net.fretux.ascend.player.StatEffects;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
@@ -32,9 +33,7 @@ public class IntelligenceEnchantmentEvents {
             if (intelligence <= 0) return;
             int original = event.getOriginalLevel();
             if (original <= 0) return;
-            double perPoint = 0.005d;
-            double max = 0.40d;
-            double reduction = Math.min(intelligence * perPoint, max);
+            double reduction = StatEffects.getIntelligenceAnvilCostReduction(intelligence);
             int newLevel = (int) Math.max(1, Math.floor(original * (1.0d - reduction)));
             event.setEnchantLevel(newLevel);
         });

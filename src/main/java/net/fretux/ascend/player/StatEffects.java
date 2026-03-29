@@ -35,20 +35,14 @@ public final class StatEffects {
     private static double getScaling() {
         return AscendConfig.COMMON.attributeScalingMultiplier.get();
     }
-    
-    private static double mediumScalingPercent(int x) {
-        if (x <= 0) return 0.0d;
-        return Math.pow(3.5d * x, 0.61d);
+
+    private static double scaledRatio(int level, double perPoint, double max) {
+        if (level <= 0) return 0.0d;
+        return Math.min(level * perPoint * getScaling(), max);
     }
 
-    private static double lightScalingPercent(int x) {
-        if (x <= 0) return 0.0d;
-        return Math.pow(4.0d * x, 0.55d);
-    }
-
-    private static double heavyScalingPercent(int x) {
-        if (x <= 0) return 0.0d;
-        return (0.4d * x) + (5.0d * Math.sin(0.065d * x));
+    private static double scalingMultiplier(int level, double perPoint, double maxBonus) {
+        return 1.0d + scaledRatio(level, perPoint, maxBonus);
     }
 
     public static void applyAll(Player player) {
@@ -68,7 +62,7 @@ public final class StatEffects {
         if (atk != null) {
             atk.removeModifier(STRENGTH_DAMAGE_UUID);
             if (strengthLevel > 0) {
-                double dmgBonus = (mediumScalingPercent(strengthLevel) * 0.1d) * getScaling();
+                double dmgBonus = Math.min(strengthLevel * 0.06d * getScaling(), 6.0d);
                 atk.addTransientModifier(new AttributeModifier(
                         STRENGTH_DAMAGE_UUID,
                         "Ascend Strength damage bonus",
@@ -82,7 +76,7 @@ public final class StatEffects {
         if (kb != null) {
             kb.removeModifier(STRENGTH_KNOCKBACK_UUID);
             if (strengthLevel > 0) {
-                double kbBonus = (mediumScalingPercent(strengthLevel) * 0.015d) * getScaling();
+                double kbBonus = scaledRatio(strengthLevel, 0.002d, 0.2d);
                 kb.addTransientModifier(new AttributeModifier(
                         STRENGTH_KNOCKBACK_UUID,
                         "Ascend Strength knockback bonus",
@@ -98,7 +92,7 @@ public final class StatEffects {
         if (move != null) {
             move.removeModifier(AGILITY_SPEED_UUID);
             if (agilityLevel > 0) {
-                double bonus = agilityLevel * 0.0005d * getScaling();
+                double bonus = scaledRatio(agilityLevel, 0.0008d, 0.08d);
                 move.addTransientModifier(new AttributeModifier(
                         AGILITY_SPEED_UUID,
                         "Ascend Agility speed bonus",
@@ -114,7 +108,7 @@ public final class StatEffects {
         if (hp != null) {
             hp.removeModifier(FORTITUDE_HEALTH_UUID);
             if (fortitudeLevel > 0) {
-                double healthBonus = fortitudeLevel * 0.25d * getScaling();
+                double healthBonus = Math.min(fortitudeLevel * 0.18d * getScaling(), 18.0d);
                 hp.addTransientModifier(new AttributeModifier(
                         FORTITUDE_HEALTH_UUID,
                         "Ascend Fortitude health bonus",
@@ -127,7 +121,7 @@ public final class StatEffects {
         if (kbRes != null) {
             kbRes.removeModifier(FORTITUDE_KB_RESIST_UUID);
             if (fortitudeLevel > 0) {
-                double res = Math.min(0.006d * fortitudeLevel * getScaling(), 0.60d);
+                double res = scaledRatio(fortitudeLevel, 0.003d, 0.3d);
                 kbRes.addTransientModifier(new AttributeModifier(
                         FORTITUDE_KB_RESIST_UUID,
                         "Ascend Fortitude knockback resist",
@@ -140,20 +134,24 @@ public final class StatEffects {
 
     public static float getWillpowerSanityMultiplier(int willpowerLevel) {
         if (willpowerLevel <= 0) return 1.0f;
-        double reduction = Math.min(willpowerLevel * 0.005d * getScaling(), 0.5d);
+        double reduction = scaledRatio(willpowerLevel, 0.0035d, 0.35d);
         return (float) (1.0d - reduction);
     }
 
     public static float getWillpowerTempoMultiplier(int willpowerLevel) {
         if (willpowerLevel <= 0) return 1.0f;
-        double bonus = Math.min(willpowerLevel * 0.004d * getScaling(), 0.4d);
+        double bonus = scaledRatio(willpowerLevel, 0.003d, 0.3d);
         return (float) (1.0d + bonus);
     }
 
     public static float getWillpowerHealthRegen(int willpowerLevel) {
         if (willpowerLevel <= 0) return 0.0f;
-        double bonus = Math.min(willpowerLevel * 0.01d * getScaling(), 2.0d);
+        double bonus = scaledRatio(willpowerLevel, 0.0125d, 1.25d);
         return (float) bonus;
+    }
+
+    public static double getWillpowerCastTimeReduction(int willpowerLevel) {
+        return scaledRatio(willpowerLevel, 0.002d, 0.2d);
     }
 
     public static float getPlayerSanityMultiplier(Player player) {
@@ -169,52 +167,56 @@ public final class StatEffects {
     }
 
     public static int getIntelligenceManaBonus(int intelligenceLevel) {
-        return Math.max(0, intelligenceLevel);
+        return (int) Math.floor(Math.min(intelligenceLevel * 2.0d * getScaling(), 200.0d));
     }
 
     public static double getIntelligenceAnvilCostReduction(int intelligenceLevel) {
-        if (intelligenceLevel <= 0) return 0.0d;
-        double perPoint = 0.005d;
-        double max = 0.40d;
-        return Math.min(intelligenceLevel * perPoint * getScaling(), max);
+        return scaledRatio(intelligenceLevel, 0.003d, 0.3d);
     }
 
     public static int getIntelligenceKnowledgeGain(int intelligenceLevel, int baseGain) {
         if (baseGain <= 0) return baseGain;
         if (intelligenceLevel <= 0) return baseGain;
-        double perPoint = 0.005d;
-        double max = 0.50d;
-        double bonus = Math.min(intelligenceLevel * perPoint * getScaling(), max);
+        double bonus = scaledRatio(intelligenceLevel, 0.003d, 0.3d);
         int extra = (int) Math.floor(baseGain * bonus);
         return baseGain + Math.max(0, extra);
     }
 
     public static double getCharismaTradeDiscount(int charismaLevel) {
-        if (charismaLevel <= 0) return 0.0d;
-        double perPoint = 0.01d;
-        double max = 0.30d;
-        return Math.min(charismaLevel * perPoint * getScaling(), max);
+        return scaledRatio(charismaLevel, 0.003d, 0.3d);
     }
 
     public static int getCharismaVillagerReputationBonus(int charismaLevel) {
         if (charismaLevel <= 0) return 0;
-        double perPoint = 0.1d;
-        double max = 10.0d;
-        return (int) Math.floor(Math.min(charismaLevel * perPoint * getScaling(), max));
+        return (int) Math.floor(Math.min(charismaLevel * 0.08d * getScaling(), 8.0d));
     }
 
     public static double getCharismaAllyHealthBonus(int charismaLevel) {
-        if (charismaLevel <= 0) return 0.0d;
-        double perPoint = 0.0025d;
-        double max = 0.25d;
-        return Math.min(charismaLevel * perPoint * getScaling(), max);
+        return scaledRatio(charismaLevel, 0.002d, 0.2d);
     }
 
     public static double getCharismaAllyDamageBonus(int charismaLevel) {
-        if (charismaLevel <= 0) return 0.0d;
-        double perPoint = 0.0020d;
-        double max = 0.20d;
-        return Math.min(charismaLevel * perPoint * getScaling(), max);
+        return scaledRatio(charismaLevel, 0.002d, 0.2d);
+    }
+
+    public static double getFortitudeEffectGuardChance(int fortitudeLevel) {
+        return scaledRatio(fortitudeLevel, 0.0025d, 0.25d);
+    }
+
+    public static double getFortitudeCleanseChance(int fortitudeLevel) {
+        return scaledRatio(fortitudeLevel, 0.002d, 0.2d);
+    }
+
+    public static double getAgilityEvasionChance(int agilityLevel) {
+        return scaledRatio(agilityLevel, 0.0015d, 0.15d);
+    }
+
+    public static double getAgilityRangedDamageMultiplier(int agilityLevel) {
+        return 1.0d + Math.min((getLightWeaponScalingMultiplier(agilityLevel) - 1.0d) * 0.7d, 0.25d);
+    }
+
+    public static double getStrengthTridentDamageMultiplier(int strengthLevel) {
+        return 1.0d + Math.min((getWeaponScalingMultiplier(strengthLevel) - 1.0d) * 0.6d, 0.2d);
     }
 
     public static void applyCharismaAllyBuff(LivingEntity entity, int charismaLevel) {
@@ -265,27 +267,18 @@ public final class StatEffects {
     }
     
     public static double getWeaponScalingMultiplier(int scalingLevel) {
-        if (scalingLevel <= 0) return 1.0d;
-        double percent = mediumScalingPercent(scalingLevel);
-        return 1.0d + (percent / 100.0d);
+        return scalingMultiplier(scalingLevel, 0.0035d, 0.35d);
     }
-    
+
     public static double getLightWeaponScalingMultiplier(int scalingLevel) {
-        if (scalingLevel <= 0) return 1.0d;
-        double percent = lightScalingPercent(scalingLevel);
-        return 1.0d + (percent / 100.0d);
+        return scalingMultiplier(scalingLevel, 0.0035d, 0.35d);
     }
-    
+
     public static double getHeavyWeaponScalingMultiplier(int scalingLevel) {
-        if (scalingLevel <= 0) return 1.0d;
-        double percent = heavyScalingPercent(scalingLevel);
-        return 1.0d + (percent / 100.0d);
+        return scalingMultiplier(scalingLevel, 0.0035d, 0.35d);
     }
-    
+
     public static double getMagicScalingMultiplier(int scalingLevel) {
-        if (scalingLevel <= 0) return 1.0d;
-        double perPoint = 0.0075d;
-        double maxBonus = 0.75d;
-        return 1.0d + Math.min(scalingLevel * perPoint, maxBonus);
+        return scalingMultiplier(scalingLevel, 0.0035d, 0.35d);
     }
 }

@@ -2,6 +2,7 @@ package net.fretux.ascend.event;
 
 import net.fretux.ascend.AscendMod;
 import net.fretux.ascend.player.PlayerStatsProvider;
+import net.fretux.ascend.player.StatEffects;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
@@ -24,9 +25,7 @@ public class IntelligencePotionEvents {
             int intel = stats.getAttributeLevel("intelligence");
             if (intel <= 0) return;
             int baseDuration = inst.getDuration();
-            double durPerPoint = 0.005d;
-            double durMax = 0.5d;
-            double durBonus = Math.min(intel * durPerPoint, durMax);
+            double durBonus = StatEffects.getIntelligenceAnvilCostReduction(intel);
             int newDuration = (int) (baseDuration * (1.0d + durBonus));
             if (newDuration <= baseDuration) return;
             player.removeEffect(inst.getEffect());

@@ -2,6 +2,7 @@ package net.fretux.ascend.event;
 
 import net.fretux.ascend.AscendMod;
 import net.fretux.ascend.player.PlayerStatsProvider;
+import net.fretux.ascend.player.StatEffects;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.TickEvent;
@@ -21,9 +22,7 @@ public class FortitudeDefenseEvents {
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
             int fortitude = stats.getAttributeLevel("fortitude");
             if (fortitude <= 0) return;
-            double perPoint = 0.004d;
-            double max = 0.5d;
-            double chance = Math.min(fortitude * perPoint, max);
+            double chance = StatEffects.getFortitudeEffectGuardChance(fortitude);
             if (chance > 0 && player.getRandom().nextDouble() < chance) {
                 event.setResult(Event.Result.DENY);
             }
@@ -38,9 +37,7 @@ public class FortitudeDefenseEvents {
             int fortitude = stats.getAttributeLevel("fortitude");
             if (fortitude <= 0) return;
             if (player.tickCount % 40 != 0) return;
-            double perPoint = 0.003d;
-            double max = 0.4d;
-            double chance = Math.min(fortitude * perPoint, max);
+            double chance = StatEffects.getFortitudeCleanseChance(fortitude);
             if (chance <= 0) return;
             if (player.getRandom().nextDouble() >= chance) return;
             player.getActiveEffects().stream()

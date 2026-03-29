@@ -1,25 +1,20 @@
 package net.fretux.ascend.event;
 
 import net.fretux.ascend.AscendMod;
-import net.fretux.ascend.config.AscendConfig;
 import net.fretux.ascend.player.PlayerStatsProvider;
+import net.fretux.ascend.player.StatEffects;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ThrownTrident;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = AscendMod.MODID)
 public class WeaponMagicScalingEvents {
-    private static double getScaling() {
-        return AscendConfig.COMMON.attributeScalingMultiplier.get();
-    }
-
     @SubscribeEvent
     public static void onLivingHurt(LivingHurtEvent event) {
         if (!(event.getSource().getEntity() instanceof Player player)) return;
@@ -31,33 +26,12 @@ public class WeaponMagicScalingEvents {
             if (isMagicDamage(event.getSource())) {
                 int magicScaling = stats.getAttributeLevel("magic_scaling");
                 if (magicScaling > 0) {
-                    double perPoint = 0.005d;
-                    double maxBonus = 0.40d;
-                    double bonusMult = 1.0d + Math.min(magicScaling * perPoint * getScaling(), maxBonus);
+                    double bonusMult = StatEffects.getMagicScalingMultiplier(magicScaling);
                     modified = (float) (modified * bonusMult);
                 }
             } else if (isRangedDamage(event.getSource())) {
                 double rangedMultiplier = getRangedScalingMultiplier(stats, event.getSource());
                 modified = (float) (modified * rangedMultiplier);
-            } else {
-                double attackSpeed = 4.0d;
-                if (player.getAttribute(Attributes.ATTACK_SPEED) != null) {
-                    attackSpeed = player.getAttribute(Attributes.ATTACK_SPEED).getValue();
-                }
-                String key =
-                        (attackSpeed >= 1.8d) ? "light_scaling" :
-                                (attackSpeed >= 1.2d) ? "medium_scaling" :
-                                        "heavy_scaling";
-                int level = stats.getAttributeLevel(key);
-                if (level > 0) {
-                    double perPoint =
-                            key.equals("light_scaling") ? 0.003d :
-                                    key.equals("medium_scaling") ? 0.004d :
-                                            0.005d;
-                    double maxBonus = 0.40d;
-                    double bonusMult = 1.0d + Math.min(level * perPoint * getScaling(), maxBonus);
-                    modified = (float) (modified * bonusMult);
-                }
             }
 
             if (modified != base) {
@@ -91,17 +65,13 @@ public class WeaponMagicScalingEvents {
         double bonus = 1.0d;
         int agility = stats.getAttributeLevel("agility");
         if (agility > 0) {
-            double perPoint = 0.004d;
-            double maxBonus = 0.35d;
-            bonus *= 1.0d + Math.min(agility * perPoint * getScaling(), maxBonus);
+            bonus *= StatEffects.getAgilityRangedDamageMultiplier(agility);
         }
 
         if (source.getDirectEntity() instanceof ThrownTrident) {
             int strength = stats.getAttributeLevel("strength");
             if (strength > 0) {
-                double perPoint = 0.003d;
-                double maxBonus = 0.25d;
-                bonus *= 1.0d + Math.min(strength * perPoint * getScaling(), maxBonus);
+                bonus *= StatEffects.getStrengthTridentDamageMultiplier(strength);
             }
         }
 
