@@ -65,3 +65,10 @@ This changelog covers all recorded changes after `1.0.0`, grouped by release ver
 - Hardened `PlayerStats` persistence and validation to clamp invalid saved values and respect config-driven limits.
 - Added GitHub issue templates for bug reports, feature requests, and tasks.
 - Included small infrastructure and polish updates across packet registration, worldgen wiring, Moonseye Tome behavior, and player event handling.
+
+## 2.2.2
+
+- Rebalanced Ascend stat formulas across combat, defense, enchantment, potion, and spell-related scaling.
+- Simplified and retuned parts of the stat effect implementation, including melee and magic scaling behavior.
+- Fixed the stats screen so custom configured max Ascend levels display correctly instead of staying at `20/20`.
+- Synced max Ascend and attribute caps through player stat data so the client GUI respects the server-authoritative config.
