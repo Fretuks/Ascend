@@ -81,11 +81,12 @@ public class StatsScreen extends Screen {
         if (mc.player != null) {
             mc.player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
                 int level = stats.getAscendLevel();
+                int maxLevel = stats.getMaxAscendLevel();
                 int xp = stats.getAscendXP();
                 int xpNext = stats.getXPToNextAscendLevel();
                 int unspent = stats.getUnspentPoints();
-                gui.drawString(font, Component.translatable("ascend.stats.level", level, 20), leftPos + 10, topPos + 28, 0xFFE27D);
-                if (level < 20) {
+                gui.drawString(font, Component.translatable("ascend.stats.level", level, maxLevel), leftPos + 10, topPos + 28, 0xFFE27D);
+                if (level < maxLevel) {
                     gui.drawString(font, Component.translatable("ascend.stats.xp", xp, xpNext), leftPos + 10, topPos + 40, 0xB4B4C8);
                 } else {
                     gui.drawString(font, Component.translatable("ascend.stats.xp_max"), leftPos + 10, topPos + 40, 0xB4B4C8);

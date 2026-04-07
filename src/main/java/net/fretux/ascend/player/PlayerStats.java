@@ -16,6 +16,8 @@ public class PlayerStats {
     private int ascendLevel = 1;
     private int ascendXP = 0;
     private int unspentPoints = getPointsPerLevel();
+    private int maxAscendLevel = getConfiguredMaxAscendLevel();
+    private int maxAttributePoints = getConfiguredMaxAttributePoints();
     public PlayerStats() {
         for (String attr : ATTRIBUTE_KEYS) {
             attributes.put(attr, 0);
@@ -86,6 +88,14 @@ public class PlayerStats {
         return attributes.getOrDefault(attribute, 0);
     }
 
+    public int getMaxAscendLevel() {
+        return maxAscendLevel;
+    }
+
+    public int getMaxAttributePoints() {
+        return maxAttributePoints;
+    }
+
     public void setAttributeLevel(String attribute, int level) {
         if (!attributes.containsKey(attribute)) return;
         int clamped = Math.max(0, Math.min(level, getMaxAttributePoints()));
@@ -145,6 +155,8 @@ public class PlayerStats {
         tag.putInt("AscendLevel", ascendLevel);
         tag.putInt("AscendXP", ascendXP);
         tag.putInt("UnspentPoints", unspentPoints);
+        tag.putInt("MaxAscendLevel", getMaxAscendLevel());
+        tag.putInt("MaxAttributePoints", getMaxAttributePoints());
         tag.putInt("Knowledge", knowledge);
         tag.putBoolean("HasUsedMoonseye", hasUsedMoonseye);
         CompoundTag attrTag = new CompoundTag();
@@ -156,6 +168,12 @@ public class PlayerStats {
     }
 
     public void deserializeNBT(CompoundTag tag) {
+        maxAscendLevel = tag.contains("MaxAscendLevel")
+                ? Math.max(1, tag.getInt("MaxAscendLevel"))
+                : getConfiguredMaxAscendLevel();
+        maxAttributePoints = tag.contains("MaxAttributePoints")
+                ? Math.max(1, tag.getInt("MaxAttributePoints"))
+                : getConfiguredMaxAttributePoints();
         ascendLevel = tag.contains("AscendLevel") ? tag.getInt("AscendLevel") : 1;
         ascendLevel = Math.max(1, Math.min(ascendLevel, getMaxAscendLevel()));
         ascendXP = tag.contains("AscendXP") ? tag.getInt("AscendXP") : 0;
@@ -187,11 +205,11 @@ public class PlayerStats {
         return AscendConfig.COMMON.pointsPerLevel.get();
     }
 
-    private static int getMaxAscendLevel() {
+    private static int getConfiguredMaxAscendLevel() {
         return AscendConfig.COMMON.maxAscendLevel.get();
     }
 
-    private static int getMaxAttributePoints() {
+    private static int getConfiguredMaxAttributePoints() {
         return AscendConfig.COMMON.maxAttributePoints.get();
     }
 }
