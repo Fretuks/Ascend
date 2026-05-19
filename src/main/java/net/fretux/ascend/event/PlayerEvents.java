@@ -34,6 +34,9 @@ public class PlayerEvents {
         );
         if (!event.getEntity().level().isClientSide) {
             StatEffects.applyAll(event.getEntity());
+            if (event.isWasDeath()) {
+                event.getEntity().setHealth(event.getEntity().getMaxHealth());
+            }
             PlayerStatsProvider.sync(event.getEntity());
         }
     }

@@ -53,6 +53,9 @@ public final class StatEffects {
             if (IronsSpellbooksCompat.isLoaded()) {
                 IronsSpellbooksCompat.applyAll(player);
             }
+            if (player.getHealth() > player.getMaxHealth()) {
+                player.setHealth(player.getMaxHealth());
+            }
         });
     }
 
