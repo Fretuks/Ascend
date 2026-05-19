@@ -39,9 +39,12 @@ public class PlayerStatsProvider implements ICapabilitySerializable<CompoundTag>
     }
 
     public static void sync(Player player) {
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
             CompoundTag data = stats.serializeNBT();
-            PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player),
+            PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer),
                     new ClientboundSyncStatsPacket(data));
         });
     }

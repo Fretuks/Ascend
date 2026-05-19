@@ -9,7 +9,6 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectCategory;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.gossip.GossipType;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
@@ -32,16 +31,10 @@ import net.minecraft.world.entity.animal.SnowGolem;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraft.world.phys.AABB;
 
-import java.util.Objects;
 import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = AscendMod.MODID)
 public class ActivityEvents {
-
-    private static int agilityTickCounter = 0;
-    private static int fortitudeTickCounter = 0;
-    private static int willpowerTickCounter = 0;
-    private static int charismaTickCounter = 0;
 
     @SubscribeEvent
     public static void onMobKilled(LivingDeathEvent event) {
@@ -86,25 +79,22 @@ public class ActivityEvents {
     public static void onPlayerTickFortitude(TickEvent.PlayerTickEvent event) {
         Player player = event.player;
         if (player.level().isClientSide || event.phase != TickEvent.Phase.END) return;
-        fortitudeTickCounter++;
-        if (fortitudeTickCounter % 100 == 0) {
-            player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
-                boolean hasNegativeEffect = player.getActiveEffects().stream()
-                        .anyMatch(e -> e.getEffect().getCategory() == MobEffectCategory.HARMFUL);
-                if (player.getFoodData().getFoodLevel() <= 6 || hasNegativeEffect) {
-                    stats.addAscendXP((int) (AscendConfig.COMMON.xpPerDamageTaken.get() * AscendConfig.COMMON.xpMultiplier.get()));
-                    PlayerStatsProvider.sync(player);
-                }
-            });
-        }
+        if (player.tickCount % 100 != 0) return;
+        player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
+            boolean hasNegativeEffect = player.getActiveEffects().stream()
+                    .anyMatch(e -> e.getEffect().getCategory() == MobEffectCategory.HARMFUL);
+            if (player.getFoodData().getFoodLevel() <= 6 || hasNegativeEffect) {
+                stats.addAscendXP((int) (AscendConfig.COMMON.xpPerDamageTaken.get() * AscendConfig.COMMON.xpMultiplier.get()));
+                PlayerStatsProvider.sync(player);
+            }
+        });
     }
 
     @SubscribeEvent
     public static void onPlayerTickAgility(TickEvent.PlayerTickEvent event) {
         Player player = event.player;
         if (player.level().isClientSide || event.phase != TickEvent.Phase.END) return;
-        agilityTickCounter++;
-        if (agilityTickCounter % 40 != 0) return;
+        if (player.tickCount % 40 != 0) return;
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
             boolean didAgileThing =
                     player.isSprinting()
@@ -142,16 +132,15 @@ public class ActivityEvents {
     public static void onPlayerTickWillpower(TickEvent.PlayerTickEvent event) {
         Player player = event.player;
         if (player.level().isClientSide || event.phase != TickEvent.Phase.END) return;
-        willpowerTickCounter++;
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
             int willpower = stats.getAttributeLevel("willpower");
-            if (willpower > 0 && willpowerTickCounter % 80 == 0) {
+            if (willpower > 0 && player.tickCount % 80 == 0) {
                 float regen = StatEffects.getWillpowerHealthRegen(willpower);
                 if (regen > 0.0f && player.getHealth() < player.getMaxHealth()) {
                     player.heal(regen);
                 }
             }
-            if (willpowerTickCounter % 200 != 0) return;
+            if (player.tickCount % 200 != 0) return;
             boolean hasNegativeEffect = player.getActiveEffects().stream()
                     .anyMatch(e -> e.getEffect().getCategory() == MobEffectCategory.HARMFUL);
             boolean lowHealth = player.getHealth() <= player.getMaxHealth() * 0.25f;
@@ -171,8 +160,7 @@ public class ActivityEvents {
     public static void onPlayerTickCharisma(TickEvent.PlayerTickEvent event) {
         Player player = event.player;
         if (player.level().isClientSide || event.phase != TickEvent.Phase.END) return;
-        charismaTickCounter++;
-        if (charismaTickCounter % 40 != 0) return;
+        if (player.tickCount % 40 != 0) return;
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
             int charisma = stats.getAttributeLevel("charisma");
             if (charisma <= 0) return;
@@ -222,9 +210,6 @@ public class ActivityEvents {
         player.getCapability(PlayerStatsProvider.PLAYER_STATS).ifPresent(stats -> {
             var heldItem = player.getMainHandItem();
             if (heldItem.isEmpty()) return;
-            double attackSpeed = Objects.requireNonNull(player.getAttribute(
-                    Attributes.ATTACK_SPEED
-            )).getBaseValue();
             stats.addAscendXP(3);
             PlayerStatsProvider.sync(player);
         });

@@ -72,3 +72,12 @@ This changelog covers all recorded changes after `1.0.0`, grouped by release ver
 - Simplified and retuned parts of the stat effect implementation, including melee and magic scaling behavior.
 - Fixed the stats screen so custom configured max Ascend levels display correctly instead of staying at `20/20`.
 - Synced max Ascend and attribute caps through player stat data so the client GUI respects the server-authoritative config.
+
+## 2.2.3
+
+- Fixed death respawns so players with fortitude bonus health respawn at their full modified maximum health instead of the vanilla 10 hearts.
+- Fixed stat resets and refunds so removed bonuses immediately clamp current health back down to the recalculated maximum.
+- Fixed player tick progression logic so fortitude, agility, willpower, and charisma timing is tracked per player instead of through shared server-wide counters.
+- Hardened player stat synchronization against accidental non-server-player calls.
+- Fixed player clone capability cleanup after copying Ascend stats to the respawned player.
+- Removed an unused attack-speed lookup from weapon XP handling.

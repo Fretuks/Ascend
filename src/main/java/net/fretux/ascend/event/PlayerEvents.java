@@ -32,6 +32,7 @@ public class PlayerEvents {
                     newStats.deserializeNBT(oldStats.serializeNBT());
                 })
         );
+        event.getOriginal().invalidateCaps();
         if (!event.getEntity().level().isClientSide) {
             StatEffects.applyAll(event.getEntity());
             if (event.isWasDeath()) {
